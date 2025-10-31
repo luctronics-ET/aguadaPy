@@ -1,0 +1,18 @@
+Command: ninja all
+[1/9] Performing build step for 'bootloader'
+[1/1] cd /opt/lampp/htdocs/aguada/firmware/node_aguada_01/build/bootloader && /home/luciano/.espressif/python_env/idf6.0_py3.12_env/bin/python /home/luciano/esp-idf/components/partition_table/check_sizes.py --offset 0x8000 bootloader 0x0 /opt/lampp/htdocs/aguada/firmware/node_aguada_01/build/bootloader/bootloader.bin
+Bootloader binary size 0x5250 bytes. 0x2db0 bytes (36%) free.
+[2/9] No install step for 'bootloader'
+[3/9] Completed 'bootloader'
+[4/9] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/main.c.obj
+[5/9] Linking C static library esp-idf/main/libmain.a
+[6/9] Generating esp-idf/esp_system/ld/sections.ld
+[7/9] Linking CXX executable node_aguada_01.elf
+[8/9] Generating binary image from built executable
+esptool v5.1.0
+Creating ESP32C3 image...
+Merged 1 ELF section.
+Successfully created ESP32C3 image.
+Generated /opt/lampp/htdocs/aguada/firmware/node_aguada_01/build/node_aguada_01.bin
+[9/9] cd /opt/lampp/htdocs/aguada/firmware/node_aguada_01/build && /home/luciano/.espressif/python_env/idf6.0_py3.12_env/bin/python /home/luciano/esp-idf/components/partition_table/check_sizes.py --offset 0x8000 partition --type app /opt/lampp/htdocs/aguada/firmware/node_aguada_01/build/partition_table/partition-table.bin /opt/lampp/htdocs/aguada/firmware/node_aguada_01/build/node_aguada_01.bin
+node_aguada_01.bin binary size 0xbbe70 bytes. Smallest app partition is 0x100000 bytes. 0x44190 bytes (27%) free.

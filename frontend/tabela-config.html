@@ -1,0 +1,942 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tabela de Configuração - AguadaPy</title>
+    <link rel="stylesheet" href="navbar.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f3f4f6;
+            padding: 0;
+        }
+
+        .main-content {
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 100%;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header h1 {
+            color: #1f2937;
+            font-size: 24px;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-success {
+            background: #10b981;
+            color: white;
+        }
+
+        .btn-secondary {
+            background: #6b7280;
+            color: white;
+        }
+
+        .btn:hover {
+            opacity: 0.9;
+            transform: translateY(-1px);
+        }
+
+        .toolbar {
+            background: white;
+            padding: 15px 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .search-box {
+            flex: 1;
+            max-width: 400px;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 10px 15px;
+            border: 2px solid #e5e7eb;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+
+        .filter-group {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .filter-group select {
+            padding: 10px 15px;
+            border: 2px solid #e5e7eb;
+            border-radius: 5px;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        .table-container {
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        thead {
+            background: #667eea;
+            color: white;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        th {
+            padding: 15px 12px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 14px;
+            white-space: nowrap;
+        }
+
+        th.sortable {
+            cursor: pointer;
+            user-select: none;
+        }
+
+        th.sortable:hover {
+            background: #5568d3;
+        }
+
+        th.sortable::after {
+            content: ' ⇅';
+            opacity: 0.5;
+        }
+
+        td {
+            padding: 12px;
+            border-bottom: 1px solid #e5e7eb;
+            font-size: 14px;
+        }
+
+        tbody tr {
+            transition: background 0.2s;
+        }
+
+        tbody tr:hover {
+            background: #f9fafb;
+        }
+
+        tbody tr.editing {
+            background: #fef3c7;
+        }
+
+        tbody tr.changed {
+            background: #d1fae5;
+        }
+
+        .editable {
+            cursor: pointer;
+            position: relative;
+            min-width: 80px;
+        }
+
+        .editable:hover {
+            background: #f3f4f6;
+            border-radius: 3px;
+        }
+
+        .editable input,
+        .editable select,
+        .editable textarea {
+            width: 100%;
+            padding: 5px;
+            border: 2px solid #667eea;
+            border-radius: 3px;
+            font-size: 14px;
+            font-family: inherit;
+        }
+
+        .editable input:focus,
+        .editable select:focus {
+            outline: none;
+            border-color: #5568d3;
+        }
+
+        .checkbox-cell {
+            text-align: center;
+        }
+
+        .checkbox-cell input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+        }
+
+        .action-cell {
+            text-align: center;
+            white-space: nowrap;
+        }
+
+        .btn-icon {
+            padding: 5px 10px;
+            font-size: 12px;
+            margin: 0 2px;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .status-ativo {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .status-inativo {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .tipo-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .tipo-reservatorio { background: #dbeafe; color: #1e40af; }
+        .tipo-bomba { background: #d1fae5; color: #065f46; }
+        .tipo-valvula { background: #fef3c7; color: #92400e; }
+        .tipo-sensor { background: #e0e7ff; color: #5b21b6; }
+        .tipo-rede { background: #f3f4f6; color: #374151; }
+        .tipo-consumidor { background: #fee2e2; color: #991b1b; }
+
+        .changes-banner {
+            display: none;
+            background: #10b981;
+            color: white;
+            padding: 15px 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 4px 6px rgba(16, 185, 129, 0.3);
+        }
+
+        .changes-banner.show {
+            display: flex;
+        }
+
+        .changes-info {
+            font-weight: 600;
+        }
+
+        .pagination {
+            background: white;
+            padding: 15px 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .pagination-info {
+            color: #6b7280;
+            font-size: 14px;
+        }
+
+        .pagination-controls {
+            display: flex;
+            gap: 5px;
+        }
+
+        .pagination-btn {
+            padding: 5px 15px;
+            border: 1px solid #e5e7eb;
+            background: white;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .pagination-btn:hover:not(:disabled) {
+            background: #f3f4f6;
+        }
+
+        .pagination-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .pagination-btn.active {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+        }
+
+        .spinner {
+            border: 4px solid #f3f4f6;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .bulk-actions {
+            display: none;
+            background: #f3f4f6;
+            padding: 10px 15px;
+            border-bottom: 2px solid #e5e7eb;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .bulk-actions.show {
+            display: flex;
+        }
+
+        .bulk-info {
+            flex: 1;
+            color: #374151;
+            font-weight: 600;
+        }
+
+        .stats-bar {
+            background: white;
+            padding: 15px 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 20px;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 28px;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: #6b7280;
+            text-transform: uppercase;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div id="navbar-placeholder"></div>
+    
+    <div class="main-content">
+        <div class="container">
+            <div class="header">
+            <div>
+                <h1>📊 Tabela de Configuração</h1>
+                <p style="color: #6b7280; margin-top: 5px; font-size: 14px;">Edição rápida inline de elementos</p>
+            </div>
+            <div class="btn-group">
+                <button class="btn btn-secondary" onclick="window.location.href='config.html'">⚙️ Config Completa</button>
+                <button class="btn btn-secondary" onclick="window.location.href='dashboard.html'">📊 Dashboard</button>
+                <button class="btn btn-primary" onclick="addNewRow()">➕ Nova Linha</button>
+            </div>
+        </div>
+
+        <div class="stats-bar">
+            <div class="stat-item">
+                <div class="stat-value" id="statTotal">0</div>
+                <div class="stat-label">Total</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value" id="statAtivos">0</div>
+                <div class="stat-label">Ativos</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value" id="statReservatorios">0</div>
+                <div class="stat-label">Reservatórios</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value" id="statBombas">0</div>
+                <div class="stat-label">Bombas</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value" id="statValvulas">0</div>
+                <div class="stat-label">Válvulas</div>
+            </div>
+        </div>
+
+        <div class="changes-banner" id="changesBanner">
+            <span class="changes-info">✏️ <span id="changesCount">0</span> alterações não salvas</span>
+            <div class="btn-group">
+                <button class="btn btn-secondary" onclick="discardChanges()">❌ Descartar</button>
+                <button class="btn btn-success" onclick="saveAllChanges()">💾 Salvar Tudo</button>
+            </div>
+        </div>
+
+        <div class="toolbar">
+            <div class="search-box">
+                <input type="text" id="searchInput" placeholder="🔍 Buscar por nome, tipo, descrição..." onkeyup="filterTable()">
+            </div>
+            <div class="filter-group">
+                <select id="filterTipo" onchange="filterTable()">
+                    <option value="">Todos os tipos</option>
+                    <option value="reservatorio">🏺 Reservatórios</option>
+                    <option value="bomba">⚙️ Bombas</option>
+                    <option value="valvula">🔘 Válvulas</option>
+                    <option value="sensor">📡 Sensores</option>
+                    <option value="rede">🔗 Redes</option>
+                    <option value="consumidor">🏢 Consumidores</option>
+                </select>
+                <select id="filterStatus" onchange="filterTable()">
+                    <option value="">Todos os status</option>
+                    <option value="ativo">✅ Ativos</option>
+                    <option value="inativo">❌ Inativos</option>
+                </select>
+                <button class="btn btn-secondary" onclick="exportToCSV()">📥 Exportar CSV</button>
+                <button class="btn btn-primary" onclick="loadData()">🔄 Recarregar</button>
+            </div>
+        </div>
+
+        <div class="bulk-actions" id="bulkActions">
+            <input type="checkbox" id="selectAll" onchange="toggleSelectAll()">
+            <span class="bulk-info"><span id="selectedCount">0</span> selecionados</span>
+            <button class="btn btn-secondary btn-icon" onclick="bulkActivate()">✅ Ativar</button>
+            <button class="btn btn-secondary btn-icon" onclick="bulkDeactivate()">❌ Desativar</button>
+            <button class="btn btn-danger btn-icon" onclick="bulkDelete()">🗑️ Excluir</button>
+        </div>
+
+        <div class="table-container">
+            <div class="loading" id="loading">
+                <div class="spinner"></div>
+                <p style="color: #6b7280;">Carregando dados...</p>
+            </div>
+
+            <table id="dataTable" style="display: none;">
+                <thead>
+                    <tr>
+                        <th style="width: 40px;"><input type="checkbox" id="selectAllHeader" onchange="toggleSelectAll()"></th>
+                        <th class="sortable" onclick="sortTable(0)">ID</th>
+                        <th class="sortable" onclick="sortTable(1)">Nome</th>
+                        <th class="sortable" onclick="sortTable(2)">Tipo</th>
+                        <th>Descrição</th>
+                        <th class="sortable" onclick="sortTable(4)">Capacidade (L)</th>
+                        <th>Coord. X</th>
+                        <th>Coord. Y</th>
+                        <th>Altura (m)</th>
+                        <th class="sortable" onclick="sortTable(8)">Status</th>
+                        <th style="width: 200px;">Ações</th>
+                    </tr>
+                </thead>
+                <tbody id="tableBody">
+                    <!-- Dados carregados via JS -->
+                </tbody>
+            </table>
+        </div>
+
+        <div class="pagination" id="pagination" style="display: none;">
+            <div class="pagination-info">
+                Mostrando <strong><span id="showingFrom">0</span>-<span id="showingTo">0</span></strong> de <strong><span id="totalRecords">0</span></strong> registros
+            </div>
+            <div class="pagination-controls">
+                <button class="pagination-btn" onclick="goToPage(1)">‹‹</button>
+                <button class="pagination-btn" onclick="previousPage()">‹</button>
+                <span id="pageNumbers"></span>
+                <button class="pagination-btn" onclick="nextPage()">›</button>
+                <button class="pagination-btn" onclick="goToPage(totalPages)">››</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = 'http://localhost:3000/api';
+        let allData = [];
+        let filteredData = [];
+        let changedRows = new Map();
+        let currentPage = 1;
+        let rowsPerPage = 20;
+        let totalPages = 1;
+
+        const tipoIcons = {
+            'reservatorio': '🏺',
+            'bomba': '⚙️',
+            'valvula': '🔘',
+            'sensor': '📡',
+            'rede': '🔗',
+            'consumidor': '🏢'
+        };
+
+        // Carregar dados
+        async function loadData() {
+            document.getElementById('loading').style.display = 'block';
+            document.getElementById('dataTable').style.display = 'none';
+
+            try {
+                const response = await fetch(`${API_URL}/elementos`);
+                allData = await response.json();
+                filteredData = [...allData];
+                
+                updateStats();
+                applyFilters();
+                renderTable();
+                
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('dataTable').style.display = 'table';
+                document.getElementById('pagination').style.display = 'flex';
+            } catch (error) {
+                console.error('Erro ao carregar dados:', error);
+                alert('Erro ao carregar dados');
+            }
+        }
+
+        // Atualizar estatísticas
+        function updateStats() {
+            document.getElementById('statTotal').textContent = allData.length;
+            document.getElementById('statAtivos').textContent = allData.filter(d => d.ativo).length;
+            document.getElementById('statReservatorios').textContent = allData.filter(d => d.tipo === 'reservatorio').length;
+            document.getElementById('statBombas').textContent = allData.filter(d => d.tipo === 'bomba').length;
+            document.getElementById('statValvulas').textContent = allData.filter(d => d.tipo === 'valvula').length;
+        }
+
+        // Renderizar tabela
+        function renderTable() {
+            const tbody = document.getElementById('tableBody');
+            tbody.innerHTML = '';
+
+            const start = (currentPage - 1) * rowsPerPage;
+            const end = start + rowsPerPage;
+            const pageData = filteredData.slice(start, end);
+
+            pageData.forEach(elem => {
+                const tr = createRow(elem);
+                tbody.appendChild(tr);
+            });
+
+            updatePagination();
+        }
+
+        // Criar linha da tabela
+        function createRow(elem) {
+            const tr = document.createElement('tr');
+            tr.dataset.id = elem.id;
+            
+            if (changedRows.has(elem.id)) {
+                tr.classList.add('changed');
+            }
+
+            tr.innerHTML = `
+                <td class="checkbox-cell"><input type="checkbox" class="row-select" value="${elem.id}" onchange="updateBulkActions()"></td>
+                <td>${elem.id}</td>
+                <td class="editable" onclick="editCell(this, 'nome', ${elem.id})">${elem.nome}</td>
+                <td class="editable" onclick="editCellSelect(this, 'tipo', ${elem.id})">${getTipoBadge(elem.tipo)}</td>
+                <td class="editable" onclick="editCell(this, 'descricao', ${elem.id})">${elem.descricao || '-'}</td>
+                <td class="editable" onclick="editCell(this, 'capacidade_litros', ${elem.id})">${elem.capacidade_litros ? elem.capacidade_litros.toLocaleString() : '-'}</td>
+                <td class="editable" onclick="editCell(this, 'coord_x', ${elem.id})">${elem.coord_x || '-'}</td>
+                <td class="editable" onclick="editCell(this, 'coord_y', ${elem.id})">${elem.coord_y || '-'}</td>
+                <td class="editable" onclick="editCell(this, 'coord_z', ${elem.id})">${elem.coord_z || '-'}</td>
+                <td class="checkbox-cell">
+                    <input type="checkbox" ${elem.ativo ? 'checked' : ''} onchange="toggleStatus(${elem.id}, this.checked)">
+                </td>
+                <td class="action-cell">
+                    <button class="btn btn-primary btn-icon" onclick="viewElement(${elem.id})">👁️</button>
+                    <button class="btn btn-success btn-icon" onclick="saveRow(${elem.id})">💾</button>
+                    <button class="btn btn-danger btn-icon" onclick="deleteRow(${elem.id})">🗑️</button>
+                </td>
+            `;
+
+            return tr;
+        }
+
+        function getTipoBadge(tipo) {
+            const labels = {
+                'reservatorio': 'Reservatório',
+                'bomba': 'Bomba',
+                'valvula': 'Válvula',
+                'sensor': 'Sensor',
+                'rede': 'Rede',
+                'consumidor': 'Consumidor'
+            };
+            return `<span class="tipo-badge tipo-${tipo}">${tipoIcons[tipo]} ${labels[tipo]}</span>`;
+        }
+
+        // Editar célula
+        function editCell(cell, field, id) {
+            if (cell.querySelector('input')) return;
+
+            const currentValue = cell.textContent.trim();
+            const input = document.createElement('input');
+            input.type = field === 'capacidade_litros' || field.startsWith('coord') ? 'number' : 'text';
+            input.value = currentValue === '-' ? '' : currentValue.replace(/\./g, '').replace(',', '.');
+            input.step = '0.01';
+            
+            cell.textContent = '';
+            cell.appendChild(input);
+            input.focus();
+            input.select();
+
+            input.onblur = () => saveFieldChange(cell, field, id, input.value);
+            input.onkeydown = (e) => {
+                if (e.key === 'Enter') input.blur();
+                if (e.key === 'Escape') {
+                    cell.textContent = currentValue;
+                }
+            };
+        }
+
+        function editCellSelect(cell, field, id) {
+            if (cell.querySelector('select')) return;
+
+            const select = document.createElement('select');
+            select.innerHTML = `
+                <option value="reservatorio">🏺 Reservatório</option>
+                <option value="bomba">⚙️ Bomba</option>
+                <option value="valvula">🔘 Válvula</option>
+                <option value="sensor">📡 Sensor</option>
+                <option value="rede">🔗 Rede</option>
+                <option value="consumidor">🏢 Consumidor</option>
+            `;
+
+            cell.textContent = '';
+            cell.appendChild(select);
+            select.focus();
+
+            select.onchange = () => {
+                saveFieldChange(cell, field, id, select.value);
+            };
+            select.onblur = () => {
+                if (select.value) {
+                    saveFieldChange(cell, field, id, select.value);
+                }
+            };
+        }
+
+        function saveFieldChange(cell, field, id, newValue) {
+            const elem = allData.find(e => e.id === id);
+            if (!elem) return;
+
+            const oldValue = elem[field];
+            
+            if (field === 'capacidade_litros' || field.startsWith('coord')) {
+                newValue = parseFloat(newValue) || null;
+            }
+
+            elem[field] = newValue;
+
+            if (!changedRows.has(id)) {
+                changedRows.set(id, {});
+            }
+            changedRows.get(id)[field] = { old: oldValue, new: newValue };
+
+            updateChangesCount();
+            
+            const tr = document.querySelector(`tr[data-id="${id}"]`);
+            tr.classList.add('changed');
+
+            renderTable();
+        }
+
+        function toggleStatus(id, newStatus) {
+            const elem = allData.find(e => e.id === id);
+            if (!elem) return;
+
+            elem.ativo = newStatus;
+
+            if (!changedRows.has(id)) {
+                changedRows.set(id, {});
+            }
+            changedRows.get(id).ativo = { old: !newStatus, new: newStatus };
+
+            updateChangesCount();
+            
+            const tr = document.querySelector(`tr[data-id="${id}"]`);
+            tr.classList.add('changed');
+        }
+
+        function updateChangesCount() {
+            const count = changedRows.size;
+            document.getElementById('changesCount').textContent = count;
+            document.getElementById('changesBanner').classList.toggle('show', count > 0);
+        }
+
+        async function saveRow(id) {
+            if (!changedRows.has(id)) {
+                alert('Nenhuma alteração para salvar');
+                return;
+            }
+
+            const elem = allData.find(e => e.id === id);
+            
+            try {
+                const response = await fetch(`${API_URL}/elementos/${id}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(elem)
+                });
+
+                if (response.ok) {
+                    changedRows.delete(id);
+                    updateChangesCount();
+                    renderTable();
+                    alert('Salvo com sucesso!');
+                } else {
+                    alert('Erro ao salvar');
+                }
+            } catch (error) {
+                console.error('Erro:', error);
+                alert('Erro ao salvar');
+            }
+        }
+
+        async function saveAllChanges() {
+            if (changedRows.size === 0) return;
+
+            const promises = Array.from(changedRows.keys()).map(id => {
+                const elem = allData.find(e => e.id === id);
+                return fetch(`${API_URL}/elementos/${id}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(elem)
+                });
+            });
+
+            try {
+                await Promise.all(promises);
+                changedRows.clear();
+                updateChangesCount();
+                renderTable();
+                alert('Todas as alterações foram salvas!');
+            } catch (error) {
+                console.error('Erro:', error);
+                alert('Erro ao salvar algumas alterações');
+            }
+        }
+
+        function discardChanges() {
+            if (!confirm('Descartar todas as alterações?')) return;
+            
+            changedRows.clear();
+            loadData();
+        }
+
+        async function deleteRow(id) {
+            if (!confirm('Excluir este elemento?')) return;
+
+            try {
+                const response = await fetch(`${API_URL}/elementos/${id}`, {
+                    method: 'DELETE'
+                });
+
+                if (response.ok) {
+                    allData = allData.filter(e => e.id !== id);
+                    changedRows.delete(id);
+                    updateChangesCount();
+                    renderTable();
+                    updateStats();
+                    alert('Excluído com sucesso!');
+                } else {
+                    alert('Erro ao excluir');
+                }
+            } catch (error) {
+                console.error('Erro:', error);
+                alert('Erro ao excluir');
+            }
+        }
+
+        function viewElement(id) {
+            window.open(`elemento.html?id=${id}`, '_blank');
+        }
+
+        // Filtros
+        function filterTable() {
+            const search = document.getElementById('searchInput').value.toLowerCase();
+            const tipo = document.getElementById('filterTipo').value;
+            const status = document.getElementById('filterStatus').value;
+
+            filteredData = allData.filter(elem => {
+                const matchSearch = !search || 
+                    elem.nome.toLowerCase().includes(search) ||
+                    elem.tipo.toLowerCase().includes(search) ||
+                    (elem.descricao && elem.descricao.toLowerCase().includes(search));
+                
+                const matchTipo = !tipo || elem.tipo === tipo;
+                const matchStatus = !status || (status === 'ativo' ? elem.ativo : !elem.ativo);
+
+                return matchSearch && matchTipo && matchStatus;
+            });
+
+            currentPage = 1;
+            totalPages = Math.ceil(filteredData.length / rowsPerPage);
+            renderTable();
+        }
+
+        function applyFilters() {
+            filterTable();
+        }
+
+        // Paginação
+        function updatePagination() {
+            totalPages = Math.ceil(filteredData.length / rowsPerPage);
+            const start = (currentPage - 1) * rowsPerPage + 1;
+            const end = Math.min(start + rowsPerPage - 1, filteredData.length);
+
+            document.getElementById('showingFrom').textContent = start;
+            document.getElementById('showingTo').textContent = end;
+            document.getElementById('totalRecords').textContent = filteredData.length;
+
+            renderPageNumbers();
+        }
+
+        function renderPageNumbers() {
+            const container = document.getElementById('pageNumbers');
+            container.innerHTML = '';
+
+            for (let i = 1; i <= totalPages; i++) {
+                if (i === 1 || i === totalPages || (i >= currentPage - 2 && i <= currentPage + 2)) {
+                    const btn = document.createElement('button');
+                    btn.className = 'pagination-btn' + (i === currentPage ? ' active' : '');
+                    btn.textContent = i;
+                    btn.onclick = () => goToPage(i);
+                    container.appendChild(btn);
+                } else if (i === currentPage - 3 || i === currentPage + 3) {
+                    const span = document.createElement('span');
+                    span.textContent = '...';
+                    span.style.padding = '0 5px';
+                    container.appendChild(span);
+                }
+            }
+        }
+
+        function goToPage(page) {
+            if (page < 1 || page > totalPages) return;
+            currentPage = page;
+            renderTable();
+        }
+
+        function previousPage() {
+            goToPage(currentPage - 1);
+        }
+
+        function nextPage() {
+            goToPage(currentPage + 1);
+        }
+
+        // Bulk actions
+        function updateBulkActions() {
+            const checkboxes = document.querySelectorAll('.row-select:checked');
+            const count = checkboxes.length;
+            document.getElementById('selectedCount').textContent = count;
+            document.getElementById('bulkActions').classList.toggle('show', count > 0);
+        }
+
+        function toggleSelectAll() {
+            const checked = document.getElementById('selectAll').checked;
+            document.querySelectorAll('.row-select').forEach(cb => cb.checked = checked);
+            updateBulkActions();
+        }
+
+        // Exportar CSV
+        function exportToCSV() {
+            const headers = ['ID', 'Nome', 'Tipo', 'Descrição', 'Capacidade', 'Coord X', 'Coord Y', 'Altura', 'Status'];
+            const rows = filteredData.map(e => [
+                e.id,
+                e.nome,
+                e.tipo,
+                e.descricao || '',
+                e.capacidade_litros || '',
+                e.coord_x || '',
+                e.coord_y || '',
+                e.coord_z || '',
+                e.ativo ? 'Ativo' : 'Inativo'
+            ]);
+
+            let csv = headers.join(',') + '\n';
+            rows.forEach(row => {
+                csv += row.map(cell => `"${cell}"`).join(',') + '\n';
+            });
+
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `elementos_${new Date().toISOString().slice(0,10)}.csv`;
+            a.click();
+        }
+
+        // Inicialização
+        document.addEventListener('DOMContentLoaded', loadData);
+    </script>
+    <script src="navbar.js"></script>
+</body>
+</html>

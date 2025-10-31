@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AguadaPy - Sistema Supervisório</title>
+    <link rel="stylesheet" href="navbar.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .main-content {
+            flex: 1;
+            padding: 30px 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .hero {
+            background: white;
+            border-radius: 15px;
+            padding: 60px 40px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+        }
+
+        .hero h2 {
+            font-size: 42px;
+            color: #1f2937;
+            margin-bottom: 15px;
+        }
+
+        .hero p {
+            font-size: 18px;
+            color: #6b7280;
+            margin-bottom: 30px;
+        }
+
+        .hero-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 14px 28px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: white;
+            color: #667eea;
+            border: 2px solid #667eea;
+        }
+
+        .btn-secondary:hover {
+            background: #667eea;
+            color: white;
+        }
+
+        .grid-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+        }
+
+        .card-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            margin-bottom: 15px;
+        }
+
+        .card h3 {
+            color: #1f2937;
+            font-size: 18px;
+            margin-bottom: 8px;
+        }
+
+        .card p {
+            color: #6b7280;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .card-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            color: #667eea;
+            font-weight: 600;
+            font-size: 14px;
+            margin-top: 15px;
+            text-decoration: none;
+        }
+
+        .card-link:hover {
+            gap: 8px;
+        }
+
+        .footer {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 20px;
+            text-align: center;
+            color: #6b7280;
+            font-size: 14px;
+        }
+
+        .footer a {
+            color: #667eea;
+            text-decoration: none;
+        }
+
+        @media (max-width: 768px) {
+            .hero h2 {
+                font-size: 32px;
+            }
+
+            .hero p {
+                font-size: 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <div id="navbar-placeholder"></div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <div class="container">
+            <!-- Hero Section -->
+            <div class="hero">
+                <h2>💧 Sistema Supervisório Hidráulico</h2>
+                <p>Monitoramento inteligente de reservatórios com compressão de dados e detecção automática de eventos</p>
+                <div class="hero-buttons">
+                    <a href="dashboard.html" class="btn btn-primary">
+                        <span>📊</span>
+                        <span>Acessar Dashboard</span>
+                    </a>
+                    <a href="config.html" class="btn btn-secondary">
+                        <span>⚙️</span>
+                        <span>Configurações</span>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Feature Cards -->
+            <div class="grid-cards">
+                <div class="card" onclick="window.location.href='dashboard.html'">
+                    <div class="card-icon" style="background: #dbeafe; color: #1e40af;">📊</div>
+                    <h3>Dashboard em Tempo Real</h3>
+                    <p>Visualize níveis de água, status de bombas e válvulas, e eventos em tempo real.</p>
+                    <a href="dashboard.html" class="card-link">Acessar →</a>
+                </div>
+
+                <div class="card" onclick="window.location.href='config.html'">
+                    <div class="card-icon" style="background: #e0e7ff; color: #5b21b6;">⚙️</div>
+                    <h3>Configuração Completa</h3>
+                    <p>Gerencie elementos, sensores, atuadores e conexões do sistema hidráulico.</p>
+                    <a href="config.html" class="card-link">Configurar →</a>
+                </div>
+
+                <div class="card" onclick="window.location.href='tabela-config.html'">
+                    <div class="card-icon" style="background: #d1fae5; color: #065f46;">📋</div>
+                    <h3>Edição Rápida</h3>
+                    <p>Edite múltiplos elementos rapidamente com nossa tabela de configuração inline.</p>
+                    <a href="tabela-config.html" class="card-link">Editar →</a>
+                </div>
+
+                <div class="card" onclick="window.location.href='debug.html'">
+                    <div class="card-icon" style="background: #fef3c7; color: #92400e;">🐛</div>
+                    <h3>Debug & Diagnóstico</h3>
+                    <p>Visualize leituras em tempo real e diagnostique problemas nos sensores.</p>
+                    <a href="debug.html" class="card-link">Debug →</a>
+                </div>
+
+                <div class="card">
+                    <div class="card-icon" style="background: #fee2e2; color: #991b1b;">📄</div>
+                    <h3>Relatórios Diários</h3>
+                    <p>Relatórios automáticos com consumo, abastecimento e detecção de vazamentos.</p>
+                    <a href="#relatorios" class="card-link">Ver Relatórios →</a>
+                </div>
+
+                <div class="card">
+                    <div class="card-icon" style="background: #fce7f3; color: #9f1239;">🔔</div>
+                    <h3>Alertas & Eventos</h3>
+                    <p>Notificações automáticas para abastecimento, consumo e vazamentos detectados.</p>
+                    <a href="#alertas" class="card-link">Configurar →</a>
+                </div>
+            </div>
+
+            <!-- Stats Section -->
+            <div class="grid-cards">
+                <div class="card">
+                    <h3>📈 Sistema</h3>
+                    <p style="margin: 10px 0;">
+                        <strong>6</strong> Reservatórios<br>
+                        <strong>5-10</strong> Bombas<br>
+                        <strong>~20</strong> Válvulas<br>
+                        <strong>3</strong> Nodes IoT
+                    </p>
+                </div>
+
+                <div class="card">
+                    <h3>💾 Compressão de Dados</h3>
+                    <p style="margin: 10px 0;">
+                        Redução de até <strong>90%</strong> no volume de dados mantendo precisão e detectando eventos significativos.
+                    </p>
+                </div>
+
+                <div class="card">
+                    <h3>🎯 Detecção Automática</h3>
+                    <p style="margin: 10px 0;">
+                        <strong>Abastecimento</strong><br>
+                        <strong>Consumo</strong><br>
+                        <strong>Vazamentos</strong><br>
+                        <strong>Falhas de Sensor</strong>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <p>&copy; 2025 AguadaPy - Sistema Supervisório Hidráulico | 
+        <a href="https://github.com/aguadapy" target="_blank">GitHub</a> | 
+        <a href="#docs">Documentação</a></p>
+    </footer>
+
+    <script src="navbar.js"></script>
+</body>
+</html>

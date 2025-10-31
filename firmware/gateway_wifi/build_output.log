@@ -1,0 +1,14 @@
+Executing action: app
+Running ninja in directory /opt/lampp/htdocs/cmasm/modulos/aguada-v2/firmware/gateway_wifi/build
+Executing "ninja app"...
+[1/1] cd /opt/lampp/htdocs/cmasm/modulos/aguada-v2/firmware/gateway_wifi/build && /home/luciano/.espressif/python_env/idf6.0_py3.12_env/bin/python /home/luciano/esp-idf/components/partition_table/check_sizes.py --offset 0x8000 partition --type app /opt/lampp/htdocs/cmasm/modulos/aguada-v2/firmware/gateway_wifi/build/partition_table/partition-table.bin /opt/lampp/htdocs/cmasm/modulos/aguada-v2/firmware/gateway_wifi/build/gateway_wifi.bin
+gateway_wifi.bin binary size 0xd3050 bytes. Smallest app partition is 0x100000 bytes. 0x2cfb0 bytes (18%) free.
+
+App build complete. To flash, run:
+ idf.py app-flash
+or
+ idf.py -p PORT app-flash
+or
+ python -m esptool --chip esp32c3 -b 460800 --before default-reset --after hard-reset write-flash 0x10000 build/gateway_wifi.bin
+or from the "/opt/lampp/htdocs/cmasm/modulos/aguada-v2/firmware/gateway_wifi/build" directory
+ python -m esptool --chip esp32c3 -b 460800 --before default-reset --after hard-reset write-flash "@flash_args"

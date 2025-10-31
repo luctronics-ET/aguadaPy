@@ -1,0 +1,2 @@
+source /opt/lampp/htdocs/aguadaPy/firmware2/gateway_wifi/build/bootloader/gdbinit/symbols
+source /opt/lampp/htdocs/aguadaPy/firmware2/gateway_wifi/build/bootloader/gdbinit/connect

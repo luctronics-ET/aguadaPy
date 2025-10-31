@@ -1,0 +1,97 @@
+# Testes de API - aguadaPy Backend
+# Use REST Client extension (Ctrl+Alt+R para executar)
+
+@baseUrl = http://localhost:3000
+@apiUrl = {{baseUrl}}/api
+
+### Health Check
+GET {{baseUrl}}/health
+
+### Root
+GET {{baseUrl}}/
+
+### 1. POST Leitura Raw (Simula ESP32 enviando dados)
+POST {{apiUrl}}/leituras/raw
+Content-Type: application/json
+
+{
+  "mac": "34:85:18:9A:2B:F4",
+  "value_id": 1,
+  "distance_cm": 125,
+  "sequence": 1001,
+  "rssi": -65
+}
+
+### 2. POST Leitura Raw - Sensor 2
+POST {{apiUrl}}/leituras/raw
+Content-Type: application/json
+
+{
+  "mac": "AA:BB:CC:DD:EE:FF",
+  "value_id": 2,
+  "distance_cm": 89,
+  "sequence": 2001,
+  "rssi": -58
+}
+
+### 3. POST Leitura com erro (sensor fora de range)
+POST {{apiUrl}}/leituras/raw
+Content-Type: application/json
+
+{
+  "mac": "34:85:18:9A:2B:F4",
+  "value_id": 1,
+  "distance_cm": 65535,
+  "sequence": 1002,
+  "rssi": -65
+}
+
+### 4. Listar Leituras Processadas
+GET {{apiUrl}}/leituras/processadas?limit=10
+
+### 5. Estatísticas de Sensor
+GET {{apiUrl}}/leituras/stats/1
+
+### 6. Listar Elementos
+GET {{apiUrl}}/elementos/
+
+### 7. Listar Elementos - Apenas Reservatórios
+GET {{apiUrl}}/elementos/?tipo=RESERVATORIO
+
+### 8. Detalhe de Elemento
+GET {{apiUrl}}/elementos/1
+
+### 9. Histórico de Elemento (últimas 24h)
+GET {{apiUrl}}/elementos/1/historico?horas=24
+
+### 10. Listar Eventos
+GET {{apiUrl}}/eventos/
+
+### 11. Eventos Críticos
+GET {{apiUrl}}/eventos/criticos
+
+### 12. Dashboard Resumo
+GET {{apiUrl}}/relatorios/dashboard
+
+### 13. Relatório Diário
+GET {{apiUrl}}/relatorios/diario/2025-10-30
+
+### 14. Registrar Calibração Manual
+POST {{apiUrl}}/calibracao/
+Content-Type: application/json
+
+{
+  "sensor_id": 1,
+  "valor_manual": 127.5,
+  "observacoes": "Calibração manual com régua física"
+}
+
+### 15. Histórico de Calibrações
+GET {{apiUrl}}/calibracao/1
+
+### 16. POST Leitura (Formato compatível com PHP antigo)
+# Teste de compatibilidade com api_gateway_v2.php
+POST {{apiUrl}}/leituras/raw
+Content-Type: application/x-www-form-urlencoded
+
+mac=34:85:18:9A:2B:F4&value_id=1&distance_cm=130&sequence=1003&rssi=-62

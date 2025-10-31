@@ -1,0 +1,2 @@
+source /opt/lampp/htdocs/aguada/firmware/node_aguada_01/build/gdbinit/symbols
+source /opt/lampp/htdocs/aguada/firmware/node_aguada_01/build/gdbinit/connect

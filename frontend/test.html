@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Teste API</title>
+    <style>
+        body { font-family: monospace; padding: 20px; background: #000; color: #0f0; }
+        pre { background: #111; padding: 10px; border: 1px solid #0f0; }
+        button { padding: 10px 20px; background: #0f0; color: #000; border: none; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <h1>🧪 Teste de Conexão API</h1>
+    
+    <button onclick="testAPI()">Testar API</button>
+    <button onclick="testCORS()">Testar CORS</button>
+    
+    <h2>Resultado:</h2>
+    <pre id="result">Clique no botão para testar...</pre>
+    
+    <script>
+        async function testAPI() {
+            const result = document.getElementById('result');
+            result.textContent = 'Testando...';
+            
+            try {
+                const url = 'http://localhost:3000/api/leituras/ultimas';
+                console.log('Testando URL:', url);
+                
+                const response = await fetch(url);
+                console.log('Response:', response);
+                
+                result.textContent = `
+Status: ${response.status} ${response.statusText}
+Headers: ${JSON.stringify([...response.headers], null, 2)}
+
+Dados:
+${JSON.stringify(await response.json(), null, 2)}
+                `;
+            } catch (error) {
+                result.textContent = `❌ ERRO:\n${error.name}: ${error.message}\n\nStack:\n${error.stack}`;
+                console.error(error);
+            }
+        }
+        
+        async function testCORS() {
+            const result = document.getElementById('result');
+            result.textContent = 'Testando CORS...';
+            
+            try {
+                const response = await fetch('http://localhost:3000/api/leituras/ultimas', {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    mode: 'cors'
+                });
+                
+                result.textContent = `✅ CORS OK!\nStatus: ${response.status}\n\n${JSON.stringify(await response.json(), null, 2)}`;
+            } catch (error) {
+                result.textContent = `❌ CORS FALHOU:\n${error.message}`;
+            }
+        }
+    </script>
+</body>
+</html>

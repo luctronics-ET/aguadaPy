@@ -1,0 +1,2 @@
+source /opt/lampp/htdocs/aguada/firmware/node-04-dual/build/bootloader/gdbinit/symbols
+source /opt/lampp/htdocs/aguada/firmware/node-04-dual/build/bootloader/gdbinit/connect

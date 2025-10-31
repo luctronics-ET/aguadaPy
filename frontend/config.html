@@ -1,0 +1,1187 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Configuração do Sistema - AguadaPy</title>
+    <link rel="stylesheet" href="navbar.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 0;
+            min-height: 100vh;
+        }
+
+        .main-content {
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header h1 {
+            color: #333;
+            font-size: 24px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-success {
+            background: #10b981;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #059669;
+        }
+
+        .btn-danger {
+            background: #ef4444;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #dc2626;
+        }
+
+        .btn-secondary {
+            background: #6b7280;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #4b5563;
+        }
+
+        .tabs {
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .tab-header {
+            display: flex;
+            background: #f3f4f6;
+            border-bottom: 2px solid #e5e7eb;
+        }
+
+        .tab-button {
+            flex: 1;
+            padding: 15px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            color: #6b7280;
+            transition: all 0.3s;
+        }
+
+        .tab-button:hover {
+            background: #e5e7eb;
+        }
+
+        .tab-button.active {
+            background: white;
+            color: #667eea;
+            border-bottom: 3px solid #667eea;
+        }
+
+        .tab-content {
+            display: none;
+            padding: 20px;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .toolbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            gap: 10px;
+        }
+
+        .search-box {
+            flex: 1;
+            max-width: 400px;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 10px 15px;
+            border: 2px solid #e5e7eb;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+
+        .search-box input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border-radius: 5px;
+            overflow: hidden;
+        }
+
+        th {
+            background: #667eea;
+            color: white;
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+        }
+
+        td {
+            padding: 12px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        tr:hover {
+            background: #f9fafb;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .status-ativo {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .status-inativo {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .status-manutencao {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 5px;
+        }
+
+        .btn-icon {
+            padding: 5px 10px;
+            font-size: 12px;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            animation: fadeIn 0.3s;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .modal-content {
+            background: white;
+            margin: 5% auto;
+            padding: 0;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 800px;
+            max-height: 85vh;
+            overflow-y: auto;
+            animation: slideIn 0.3s;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateY(-50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .modal-header {
+            padding: 20px;
+            background: #667eea;
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-radius: 10px 10px 0 0;
+        }
+
+        .modal-header h2 {
+            font-size: 20px;
+        }
+
+        .close {
+            color: white;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .close:hover {
+            transform: rotate(90deg);
+        }
+
+        .modal-body {
+            padding: 20px;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group label {
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #374151;
+            font-size: 14px;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            padding: 10px;
+            border: 2px solid #e5e7eb;
+            border-radius: 5px;
+            font-size: 14px;
+            font-family: inherit;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .form-section {
+            margin-bottom: 25px;
+        }
+
+        .form-section h3 {
+            color: #667eea;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #e5e7eb;
+        }
+
+        .modal-footer {
+            padding: 20px;
+            background: #f9fafb;
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            border-radius: 0 0 10px 10px;
+        }
+
+        .tipo-icon {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .tipo-icon::before {
+            content: '';
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+
+        .tipo-reservatorio::before { background: #3b82f6; }
+        .tipo-bomba::before { background: #10b981; }
+        .tipo-valvula::before { background: #f59e0b; }
+        .tipo-sensor::before { background: #8b5cf6; }
+        .tipo-rede::before { background: #6b7280; }
+        .tipo-consumidor::before { background: #ef4444; }
+
+        .card {
+            background: white;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .stat-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+        }
+
+        .stat-info h4 {
+            color: #6b7280;
+            font-size: 14px;
+            margin-bottom: 5px;
+        }
+
+        .stat-info p {
+            color: #1f2937;
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .checkbox-group input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 40px;
+        }
+
+        .loading.show {
+            display: block;
+        }
+
+        .spinner {
+            border: 4px solid #f3f4f6;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div id="navbar-placeholder"></div>
+    
+    <div class="main-content">
+        <div class="container">
+            <div class="header">
+            <div>
+                <h1>⚙️ Configuração do Sistema Hidráulico</h1>
+                <p style="color: #6b7280; margin-top: 5px;">Gerenciamento de elementos, sensores e atuadores</p>
+            </div>
+            <div style="display: flex; gap: 10px;">
+                <button class="btn btn-secondary" onclick="window.location.href='dashboard.html'">
+                    📊 Dashboard
+                </button>
+                <button class="btn btn-primary" onclick="openAddModal()">
+                    ➕ Novo Elemento
+                </button>
+            </div>
+        </div>
+
+        <div class="stats" id="statsContainer">
+            <!-- Stats serão carregados dinamicamente -->
+        </div>
+
+        <div class="tabs">
+            <div class="tab-header">
+                <button class="tab-button active" onclick="switchTab('elementos')">📦 Elementos</button>
+                <button class="tab-button" onclick="switchTab('sensores')">📡 Sensores</button>
+                <button class="tab-button" onclick="switchTab('atuadores')">⚡ Atuadores</button>
+                <button class="tab-button" onclick="switchTab('conexoes')">🔗 Conexões</button>
+                <button class="tab-button" onclick="switchTab('usuarios')">👥 Usuários</button>
+            </div>
+
+            <!-- Tab Elementos -->
+            <div id="tab-elementos" class="tab-content active">
+                <div class="toolbar">
+                    <div class="search-box">
+                        <input type="text" id="searchElementos" placeholder="🔍 Buscar elementos..." onkeyup="filterTable('elementosTable', 'searchElementos')">
+                    </div>
+                    <select id="filterTipo" onchange="filterByType()" style="padding: 10px; border: 2px solid #e5e7eb; border-radius: 5px;">
+                        <option value="">Todos os tipos</option>
+                        <option value="reservatorio">Reservatórios</option>
+                        <option value="bomba">Bombas</option>
+                        <option value="valvula">Válvulas</option>
+                        <option value="sensor">Sensores</option>
+                        <option value="rede">Redes</option>
+                        <option value="consumidor">Consumidores</option>
+                    </select>
+                </div>
+
+                <div class="loading" id="loadingElementos">
+                    <div class="spinner"></div>
+                    <p style="margin-top: 10px; color: #6b7280;">Carregando elementos...</p>
+                </div>
+
+                <table id="elementosTable">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Nome</th>
+                            <th>Tipo</th>
+                            <th>Descrição</th>
+                            <th>Capacidade (L)</th>
+                            <th>Status</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody id="elementosTableBody">
+                        <!-- Dados carregados via JS -->
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Tab Sensores -->
+            <div id="tab-sensores" class="tab-content">
+                <div class="toolbar">
+                    <div class="search-box">
+                        <input type="text" id="searchSensores" placeholder="🔍 Buscar sensores..." onkeyup="filterTable('sensoresTable', 'searchSensores')">
+                    </div>
+                    <button class="btn btn-primary" onclick="openAddSensorModal()">➕ Novo Sensor</button>
+                </div>
+
+                <table id="sensoresTable">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Elemento</th>
+                            <th>Tipo</th>
+                            <th>Modelo</th>
+                            <th>Unidade</th>
+                            <th>Última Calibração</th>
+                            <th>Status</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody id="sensoresTableBody">
+                        <!-- Dados carregados via JS -->
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Tab Atuadores -->
+            <div id="tab-atuadores" class="tab-content">
+                <div class="toolbar">
+                    <div class="search-box">
+                        <input type="text" id="searchAtuadores" placeholder="🔍 Buscar atuadores..." onkeyup="filterTable('atuadoresTable', 'searchAtuadores')">
+                    </div>
+                    <button class="btn btn-primary" onclick="openAddAtuadorModal()">➕ Novo Atuador</button>
+                </div>
+
+                <table id="atuadoresTable">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Elemento</th>
+                            <th>Tipo</th>
+                            <th>Estado</th>
+                            <th>Modo Controle</th>
+                            <th>Potência (W)</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody id="atuadoresTableBody">
+                        <!-- Dados carregados via JS -->
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Tab Conexões -->
+            <div id="tab-conexoes" class="tab-content">
+                <div class="toolbar">
+                    <div class="search-box">
+                        <input type="text" id="searchConexoes" placeholder="🔍 Buscar conexões..." onkeyup="filterTable('conexoesTable', 'searchConexoes')">
+                    </div>
+                    <button class="btn btn-primary" onclick="openAddConexaoModal()">➕ Nova Conexão</button>
+                </div>
+
+                <table id="conexoesTable">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Origem</th>
+                            <th>Destino</th>
+                            <th>Tipo</th>
+                            <th>Status</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody id="conexoesTableBody">
+                        <!-- Dados carregados via JS -->
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Tab Usuários -->
+            <div id="tab-usuarios" class="tab-content">
+                <div class="toolbar">
+                    <div class="search-box">
+                        <input type="text" id="searchUsuarios" placeholder="🔍 Buscar usuários..." onkeyup="filterTable('usuariosTable', 'searchUsuarios')">
+                    </div>
+                    <button class="btn btn-primary" onclick="openAddUsuarioModal()">➕ Novo Usuário</button>
+                </div>
+
+                <table id="usuariosTable">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Nome</th>
+                            <th>Email</th>
+                            <th>Login</th>
+                            <th>Papel</th>
+                            <th>Status</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody id="usuariosTableBody">
+                        <!-- Dados carregados via JS -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para Elemento -->
+    <div id="elementoModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalTitle">➕ Novo Elemento</h2>
+                <span class="close" onclick="closeModal('elementoModal')">&times;</span>
+            </div>
+            <div class="modal-body">
+                <form id="elementoForm" onsubmit="saveElemento(event)">
+                    <input type="hidden" id="elemento_id">
+                    
+                    <div class="form-section">
+                        <h3>📋 Informações Básicas</h3>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="elemento_nome">Nome *</label>
+                                <input type="text" id="elemento_nome" required placeholder="Ex: RES_CONS">
+                            </div>
+                            <div class="form-group">
+                                <label for="elemento_tipo">Tipo *</label>
+                                <select id="elemento_tipo" required>
+                                    <option value="">Selecione...</option>
+                                    <option value="reservatorio">🏺 Reservatório</option>
+                                    <option value="bomba">⚙️ Bomba</option>
+                                    <option value="valvula">🔘 Válvula</option>
+                                    <option value="sensor">📡 Sensor</option>
+                                    <option value="rede">🔗 Rede</option>
+                                    <option value="consumidor">🏢 Consumidor</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="elemento_capacidade">Capacidade (Litros)</label>
+                                <input type="number" id="elemento_capacidade" step="0.01" placeholder="Ex: 50000">
+                            </div>
+                            <div class="form-group checkbox-group">
+                                <input type="checkbox" id="elemento_ativo" checked>
+                                <label for="elemento_ativo">Elemento ativo</label>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="elemento_descricao">Descrição</label>
+                            <textarea id="elemento_descricao" placeholder="Descrição detalhada do elemento..."></textarea>
+                        </div>
+                    </div>
+
+                    <div class="form-section">
+                        <h3>📍 Posicionamento</h3>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="elemento_coord_x">Coord. X (planta)</label>
+                                <input type="number" id="elemento_coord_x" step="0.01" placeholder="Ex: 10.5">
+                            </div>
+                            <div class="form-group">
+                                <label for="elemento_coord_y">Coord. Y (planta)</label>
+                                <input type="number" id="elemento_coord_y" step="0.01" placeholder="Ex: 20.3">
+                            </div>
+                            <div class="form-group">
+                                <label for="elemento_coord_z">Altura (m)</label>
+                                <input type="number" id="elemento_coord_z" step="0.01" placeholder="Ex: 5.0">
+                            </div>
+                        </div>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="elemento_latitude">Latitude</label>
+                                <input type="number" id="elemento_latitude" step="0.000001" placeholder="Ex: -23.550520">
+                            </div>
+                            <div class="form-group">
+                                <label for="elemento_longitude">Longitude</label>
+                                <input type="number" id="elemento_longitude" step="0.000001" placeholder="Ex: -46.633308">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-section">
+                        <h3>📝 Metadados</h3>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="elemento_fabricante">Fabricante</label>
+                                <input type="text" id="elemento_fabricante" placeholder="Ex: Schneider Electric">
+                            </div>
+                            <div class="form-group">
+                                <label for="elemento_modelo">Modelo</label>
+                                <input type="text" id="elemento_modelo" placeholder="Ex: HC-SR04">
+                            </div>
+                            <div class="form-group">
+                                <label for="elemento_instalacao">Data de Instalação</label>
+                                <input type="date" id="elemento_instalacao">
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="closeModal('elementoModal')">Cancelar</button>
+                <button type="submit" form="elementoForm" class="btn btn-success">💾 Salvar</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = 'http://localhost:3000/api';
+
+        // Gerenciamento de Tabs
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
+            
+            document.getElementById(`tab-${tabName}`).classList.add('active');
+            event.target.classList.add('active');
+
+            // Carregar dados da tab
+            loadTabData(tabName);
+        }
+
+        function loadTabData(tabName) {
+            switch(tabName) {
+                case 'elementos':
+                    loadElementos();
+                    break;
+                case 'sensores':
+                    loadSensores();
+                    break;
+                case 'atuadores':
+                    loadAtuadores();
+                    break;
+                case 'conexoes':
+                    loadConexoes();
+                    break;
+                case 'usuarios':
+                    loadUsuarios();
+                    break;
+            }
+        }
+
+        // Filtros
+        function filterTable(tableId, searchId) {
+            const input = document.getElementById(searchId);
+            const filter = input.value.toUpperCase();
+            const table = document.getElementById(tableId);
+            const tr = table.getElementsByTagName('tr');
+
+            for (let i = 1; i < tr.length; i++) {
+                let found = false;
+                const td = tr[i].getElementsByTagName('td');
+                
+                for (let j = 0; j < td.length; j++) {
+                    if (td[j]) {
+                        const txtValue = td[j].textContent || td[j].innerText;
+                        if (txtValue.toUpperCase().indexOf(filter) > -1) {
+                            found = true;
+                            break;
+                        }
+                    }
+                }
+                tr[i].style.display = found ? '' : 'none';
+            }
+        }
+
+        function filterByType() {
+            const tipo = document.getElementById('filterTipo').value;
+            const table = document.getElementById('elementosTable');
+            const tr = table.getElementsByTagName('tr');
+
+            for (let i = 1; i < tr.length; i++) {
+                const td = tr[i].getElementsByTagName('td')[2]; // Coluna Tipo
+                if (td) {
+                    const txtValue = td.getAttribute('data-tipo');
+                    tr[i].style.display = (!tipo || txtValue === tipo) ? '' : 'none';
+                }
+            }
+        }
+
+        // Modal
+        function openAddModal() {
+            document.getElementById('modalTitle').textContent = '➕ Novo Elemento';
+            document.getElementById('elementoForm').reset();
+            document.getElementById('elemento_id').value = '';
+            formHasChanges = false; // Resetar flag de alterações
+            setupFormChangeDetection(); // Configurar detecção de alterações
+            document.getElementById('elementoModal').style.display = 'block';
+        }
+
+        function closeModal(modalId) {
+            const form = document.getElementById('elementoForm');
+            const hasChanges = form && (
+                document.getElementById('elemento_nome').value ||
+                document.getElementById('elemento_descricao').value
+            );
+            
+            if (hasChanges) {
+                if (!confirm('Deseja fechar sem salvar? As alterações serão perdidas.')) {
+                    return;
+                }
+            }
+            
+            document.getElementById(modalId).style.display = 'none';
+            form?.reset();
+            formHasChanges = false;
+            localStorage.removeItem('aguadapy_form_backup'); // Limpar backup
+        }
+
+        // Fechar modal ao clicar fora (com confirmação)
+        window.onclick = function(event) {
+            const modals = document.getElementsByClassName('modal');
+            for (let modal of modals) {
+                if (event.target == modal) {
+                    const modalId = modal.id;
+                    if (modalId === 'elementoModal') {
+                        closeModal(modalId);
+                    } else {
+                        modal.style.display = 'none';
+                    }
+                }
+            }
+        }
+        
+        // Prevenir perda de dados ao recarregar página
+        let formHasChanges = false;
+        
+        window.addEventListener('beforeunload', function(e) {
+            const modal = document.getElementById('elementoModal');
+            if (modal && modal.style.display === 'block' && formHasChanges) {
+                e.preventDefault();
+                e.returnValue = 'Você tem alterações não salvas. Deseja realmente sair?';
+                return e.returnValue;
+            }
+        });
+        
+        // Auto-save no localStorage para recuperação
+        function autoSaveForm() {
+            const modal = document.getElementById('elementoModal');
+            if (modal && modal.style.display === 'block' && formHasChanges) {
+                const formData = {
+                    nome: document.getElementById('elemento_nome').value,
+                    tipo: document.getElementById('elemento_tipo').value,
+                    descricao: document.getElementById('elemento_descricao').value,
+                    capacidade: document.getElementById('elemento_capacidade').value,
+                    coord_x: document.getElementById('elemento_coord_x').value,
+                    coord_y: document.getElementById('elemento_coord_y').value,
+                    coord_z: document.getElementById('elemento_coord_z').value,
+                    latitude: document.getElementById('elemento_latitude').value,
+                    longitude: document.getElementById('elemento_longitude').value,
+                    ativo: document.getElementById('elemento_ativo').checked,
+                    fabricante: document.getElementById('elemento_fabricante').value,
+                    modelo: document.getElementById('elemento_modelo').value,
+                    instalacao: document.getElementById('elemento_instalacao').value,
+                    timestamp: new Date().toISOString()
+                };
+                localStorage.setItem('aguadapy_form_backup', JSON.stringify(formData));
+            }
+        }
+        
+        // Recuperar dados salvos
+        function recoverFormData() {
+            const backup = localStorage.getItem('aguadapy_form_backup');
+            if (backup) {
+                try {
+                    const data = JSON.parse(backup);
+                    const timeDiff = new Date() - new Date(data.timestamp);
+                    
+                    // Se o backup tem menos de 1 hora
+                    if (timeDiff < 3600000) {
+                        if (confirm('Encontramos dados não salvos de uma sessão anterior. Deseja recuperá-los?')) {
+                            document.getElementById('elemento_nome').value = data.nome || '';
+                            document.getElementById('elemento_tipo').value = data.tipo || 'reservatorio';
+                            document.getElementById('elemento_descricao').value = data.descricao || '';
+                            document.getElementById('elemento_capacidade').value = data.capacidade || '';
+                            document.getElementById('elemento_coord_x').value = data.coord_x || '';
+                            document.getElementById('elemento_coord_y').value = data.coord_y || '';
+                            document.getElementById('elemento_coord_z').value = data.coord_z || '';
+                            document.getElementById('elemento_latitude').value = data.latitude || '';
+                            document.getElementById('elemento_longitude').value = data.longitude || '';
+                            document.getElementById('elemento_ativo').checked = data.ativo;
+                            document.getElementById('elemento_fabricante').value = data.fabricante || '';
+                            document.getElementById('elemento_modelo').value = data.modelo || '';
+                            document.getElementById('elemento_instalacao').value = data.instalacao || '';
+                            
+                            openAddModal();
+                            formHasChanges = true;
+                        } else {
+                            localStorage.removeItem('aguadapy_form_backup');
+                        }
+                    } else {
+                        localStorage.removeItem('aguadapy_form_backup');
+                    }
+                } catch (e) {
+                    console.error('Erro ao recuperar backup:', e);
+                    localStorage.removeItem('aguadapy_form_backup');
+                }
+            }
+        }
+        
+        // Auto-save a cada 5 segundos
+        setInterval(autoSaveForm, 5000);
+        
+        // Monitorar alterações no formulário
+        function setupFormChangeDetection() {
+            const form = document.getElementById('elementoForm');
+            if (form) {
+                const inputs = form.querySelectorAll('input, textarea, select');
+                inputs.forEach(input => {
+                    input.addEventListener('input', () => {
+                        formHasChanges = true;
+                        autoSaveForm(); // Salvar imediatamente ao digitar
+                    });
+                });
+            }
+        }
+
+        // CRUD Elementos
+        async function loadElementos() {
+            const loading = document.getElementById('loadingElementos');
+            const tbody = document.getElementById('elementosTableBody');
+            
+            loading.classList.add('show');
+            
+            try {
+                const response = await fetch(`${API_URL}/elementos`);
+                const elementos = await response.json();
+                
+                tbody.innerHTML = '';
+                
+                elementos.forEach(elem => {
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td>${elem.id}</td>
+                        <td><strong>${elem.nome}</strong></td>
+                        <td data-tipo="${elem.tipo}">
+                            <span class="tipo-icon tipo-${elem.tipo}">${getTipoLabel(elem.tipo)}</span>
+                        </td>
+                        <td>${elem.descricao || '-'}</td>
+                        <td>${elem.capacidade_litros ? elem.capacidade_litros.toLocaleString() : '-'}</td>
+                        <td><span class="status-badge ${elem.ativo ? 'status-ativo' : 'status-inativo'}">
+                            ${elem.ativo ? 'Ativo' : 'Inativo'}
+                        </span></td>
+                        <td class="action-buttons">
+                            <button class="btn btn-primary btn-icon" onclick="viewElemento(${elem.id})">👁️ Ver</button>
+                            <button class="btn btn-secondary btn-icon" onclick="editElemento(${elem.id})">✏️ Editar</button>
+                            <button class="btn btn-danger btn-icon" onclick="deleteElemento(${elem.id})">🗑️</button>
+                        </td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+            } catch (error) {
+                console.error('Erro ao carregar elementos:', error);
+                tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; color:#ef4444;">Erro ao carregar dados</td></tr>';
+            } finally {
+                loading.classList.remove('show');
+            }
+        }
+
+        function getTipoLabel(tipo) {
+            const labels = {
+                'reservatorio': 'Reservatório',
+                'bomba': 'Bomba',
+                'valvula': 'Válvula',
+                'sensor': 'Sensor',
+                'rede': 'Rede',
+                'consumidor': 'Consumidor'
+            };
+            return labels[tipo] || tipo;
+        }
+
+        async function saveElemento(event) {
+            event.preventDefault();
+            
+            const id = document.getElementById('elemento_id').value;
+            const data = {
+                nome: document.getElementById('elemento_nome').value,
+                tipo: document.getElementById('elemento_tipo').value,
+                descricao: document.getElementById('elemento_descricao').value,
+                capacidade_litros: parseFloat(document.getElementById('elemento_capacidade').value) || null,
+                coord_x: parseFloat(document.getElementById('elemento_coord_x').value) || null,
+                coord_y: parseFloat(document.getElementById('elemento_coord_y').value) || null,
+                coord_z: parseFloat(document.getElementById('elemento_coord_z').value) || null,
+                latitude: parseFloat(document.getElementById('elemento_latitude').value) || null,
+                longitude: parseFloat(document.getElementById('elemento_longitude').value) || null,
+                ativo: document.getElementById('elemento_ativo').checked,
+                meta: {
+                    fabricante: document.getElementById('elemento_fabricante').value,
+                    modelo: document.getElementById('elemento_modelo').value,
+                    data_instalacao: document.getElementById('elemento_instalacao').value
+                }
+            };
+
+            try {
+                const url = id ? `${API_URL}/elementos/${id}` : `${API_URL}/elementos`;
+                const method = id ? 'PUT' : 'POST';
+                
+                const response = await fetch(url, {
+                    method: method,
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+
+                if (response.ok) {
+                    formHasChanges = false; // Resetar flag antes de fechar
+                    localStorage.removeItem('aguadapy_form_backup'); // Limpar backup
+                    alert(id ? 'Elemento atualizado com sucesso!' : 'Elemento criado com sucesso!');
+                    closeModal('elementoModal');
+                    loadElementos();
+                    loadStats();
+                } else {
+                    alert('Erro ao salvar elemento');
+                }
+            } catch (error) {
+                console.error('Erro:', error);
+                alert('Erro ao salvar elemento');
+            }
+        }
+
+        async function editElemento(id) {
+            try {
+                const response = await fetch(`${API_URL}/elementos/${id}`);
+                const elem = await response.json();
+                
+                document.getElementById('modalTitle').textContent = '✏️ Editar Elemento';
+                document.getElementById('elemento_id').value = elem.id;
+                document.getElementById('elemento_nome').value = elem.nome;
+                document.getElementById('elemento_tipo').value = elem.tipo;
+                document.getElementById('elemento_descricao').value = elem.descricao || '';
+                document.getElementById('elemento_capacidade').value = elem.capacidade_litros || '';
+                document.getElementById('elemento_coord_x').value = elem.coord_x || '';
+                document.getElementById('elemento_coord_y').value = elem.coord_y || '';
+                document.getElementById('elemento_coord_z').value = elem.coord_z || '';
+                document.getElementById('elemento_latitude').value = elem.latitude || '';
+                document.getElementById('elemento_longitude').value = elem.longitude || '';
+                document.getElementById('elemento_ativo').checked = elem.ativo;
+                
+                if (elem.meta) {
+                    document.getElementById('elemento_fabricante').value = elem.meta.fabricante || '';
+                    document.getElementById('elemento_modelo').value = elem.meta.modelo || '';
+                    document.getElementById('elemento_instalacao').value = elem.meta.data_instalacao || '';
+                }
+                
+                formHasChanges = false; // Resetar flag ao abrir
+                setupFormChangeDetection(); // Configurar detecção de alterações
+                document.getElementById('elementoModal').style.display = 'block';
+            } catch (error) {
+                console.error('Erro ao carregar elemento:', error);
+            }
+        }
+
+        async function deleteElemento(id) {
+            if (!confirm('Tem certeza que deseja excluir este elemento?')) return;
+            
+            try {
+                const response = await fetch(`${API_URL}/elementos/${id}`, { method: 'DELETE' });
+                if (response.ok) {
+                    alert('Elemento excluído com sucesso!');
+                    loadElementos();
+                    loadStats();
+                }
+            } catch (error) {
+                console.error('Erro:', error);
+                alert('Erro ao excluir elemento');
+            }
+        }
+
+        function viewElemento(id) {
+            window.open(`elemento.html?id=${id}`, '_blank');
+        }
+
+        // Carregar estatísticas
+        async function loadStats() {
+            try {
+                const response = await fetch(`${API_URL}/elementos/stats`);
+                const stats = await response.json();
+                
+                const container = document.getElementById('statsContainer');
+                container.innerHTML = `
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background: #dbeafe; color: #1e40af;">🏺</div>
+                        <div class="stat-info">
+                            <h4>Reservatórios</h4>
+                            <p>${stats.reservatorios || 0}</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background: #d1fae5; color: #065f46;">⚙️</div>
+                        <div class="stat-info">
+                            <h4>Bombas</h4>
+                            <p>${stats.bombas || 0}</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background: #fef3c7; color: #92400e;">🔘</div>
+                        <div class="stat-info">
+                            <h4>Válvulas</h4>
+                            <p>${stats.valvulas || 0}</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background: #e0e7ff; color: #5b21b6;">📡</div>
+                        <div class="stat-info">
+                            <h4>Sensores</h4>
+                            <p>${stats.sensores || 0}</p>
+                        </div>
+                    </div>
+                `;
+            } catch (error) {
+                console.error('Erro ao carregar stats:', error);
+            }
+        }
+
+        // Placeholders para outras funções
+        function loadSensores() {
+            document.getElementById('sensoresTableBody').innerHTML = '<tr><td colspan="8" style="text-align:center;">Em desenvolvimento...</td></tr>';
+        }
+
+        function loadAtuadores() {
+            document.getElementById('atuadoresTableBody').innerHTML = '<tr><td colspan="7" style="text-align:center;">Em desenvolvimento...</td></tr>';
+        }
+
+        function loadConexoes() {
+            document.getElementById('conexoesTableBody').innerHTML = '<tr><td colspan="6" style="text-align:center;">Em desenvolvimento...</td></tr>';
+        }
+
+        function loadUsuarios() {
+            document.getElementById('usuariosTableBody').innerHTML = '<tr><td colspan="7" style="text-align:center;">Em desenvolvimento...</td></tr>';
+        }
+
+        // Inicialização
+        document.addEventListener('DOMContentLoaded', function() {
+            loadElementos();
+            loadStats();
+            setupFormChangeDetection();
+            
+            // Verificar se há dados para recuperar
+            setTimeout(recoverFormData, 1000);
+            
+            // Adicionar atalho ESC para fechar modal
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') {
+                    const modal = document.getElementById('elementoModal');
+                    if (modal && modal.style.display === 'block') {
+                        closeModal('elementoModal');
+                    }
+                }
+            });
+        });
+    </script>
+    <script src="navbar.js"></script>
+</body>
+</html>

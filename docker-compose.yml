@@ -1,0 +1,74 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:13-alpine
+    container_name: aguada_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: aguada_cmms
+      POSTGRES_USER: aguada_user
+      POSTGRES_PASSWORD: aguada_pass_2025
+      TZ: America/Sao_Paulo
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    networks:
+      - aguada_network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U aguada_user -d aguada_cmms"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Backend API (Python FastAPI)
+  backend:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    container_name: aguada_backend
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: aguada_cmms
+      DB_USER: aguada_user
+      DB_PASSWORD: aguada_pass_2025
+      API_PORT: 3000
+      JWT_SECRET: seu_secret_jwt_aqui_trocar_em_producao
+      TZ: America/Sao_Paulo
+    ports:
+      - "3000:3000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - aguada_network
+
+  # Frontend (Nginx serving React build)
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: aguada_frontend
+    restart: unless-stopped
+    environment:
+      REACT_APP_API_URL: http://localhost:3000/api
+      TZ: America/Sao_Paulo
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+    networks:
+      - aguada_network
+
+volumes:
+  postgres_data:
+    driver: local
+
+networks:
+  aguada_network:
+    driver: bridge

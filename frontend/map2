@@ -1,0 +1,31 @@
+ google.maps.event.addDomListener(window, "load", init);
+    var map;
+    function init() {
+        var mapOptions = {
+            center: new google.maps.LatLng(-22.83799, -43.109068),
+            zoom: 20,
+            zoomControl: true,
+            zoomControlOptions: {
+                style: google.maps.ZoomControlStyle.DEFAULT
+            },
+            disableDoubleClickZoom: false,
+            mapTypeControl: true,
+            mapTypeControlOptions: {
+                style: google.maps.MapTypeControlStyle.DROPDOWN_MENU
+            },
+            scaleControl: true,
+            scrollwheel: true,
+            panControl: true,
+            streetViewControl: true,
+            draggable : true,
+            overviewMapControl: true,
+            overviewMapControlOptions: {
+                opened: false
+            },
+            mapTypeId: google.maps.MapTypeId.HYBRID
+        };
+
+        var mapElement = document.getElementById("map");
+        var map = new google.maps.Map(mapElement, mapOptions);
+        
+    }

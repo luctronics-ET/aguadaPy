@@ -1,0 +1,47 @@
+{
+  "sqltools.connections": [
+    {
+      "name": "aguadaPy PostgreSQL",
+      "driver": "PostgreSQL",
+      "previewLimit": 50,
+      "server": "localhost",
+      "port": 5432,
+      "database": "aguada_cmms",
+      "username": "aguada_user",
+      "askForPassword": false,
+      "password": "aguada_pass_2025",
+      "connectionTimeout": 30
+    }
+  ],
+  "python.defaultInterpreterPath": "/usr/bin/python3",
+  "python.linting.enabled": true,
+  "python.linting.pylintEnabled": false,
+  "python.linting.flake8Enabled": true,
+  "python.formatting.provider": "black",
+  "files.exclude": {
+    "**/__pycache__": true,
+    "**/*.pyc": true,
+    "**/.pytest_cache": true,
+    "**/node_modules": true
+  },
+  "files.associations": {
+    "*.http": "http",
+    "docker-compose.yml": "yaml",
+    "Dockerfile": "dockerfile"
+  },
+  "[python]": {
+    "editor.formatOnSave": true,
+    "editor.codeActionsOnSave": {
+      "source.organizeImports": "explicit"
+    },
+    "editor.defaultFormatter": "ms-python.python"
+  },
+  "[yaml]": {
+    "editor.formatOnSave": true,
+    "editor.defaultFormatter": "redhat.vscode-yaml"
+  },
+  "[dockerfile]": {
+    "editor.formatOnSave": true
+},
+"idf.pythonInstallPath": "/usr/bin/python"
+}

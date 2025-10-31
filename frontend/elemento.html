@@ -1,0 +1,735 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ficha do Elemento - AguadaPy</title>
+    <link rel="stylesheet" href="navbar.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f3f4f6;
+            padding: 0;
+        }
+
+        .main-content {
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .header-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 30px;
+        }
+
+        .header-info h1 {
+            color: #1f2937;
+            font-size: 24px;
+            margin-bottom: 5px;
+        }
+
+        .header-info p {
+            color: #6b7280;
+            font-size: 14px;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .status-ativo {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .status-inativo {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #5568d3;
+        }
+
+        .btn-secondary {
+            background: #6b7280;
+            color: white;
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .card h2 {
+            color: #1f2937;
+            font-size: 18px;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #e5e7eb;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+        }
+
+        .info-item {
+            padding: 10px 0;
+        }
+
+        .info-label {
+            color: #6b7280;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 5px;
+        }
+
+        .info-value {
+            color: #1f2937;
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .map-container {
+            width: 100%;
+            height: 300px;
+            background: #e5e7eb;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #6b7280;
+            margin-top: 15px;
+        }
+
+        .timeline {
+            margin-top: 20px;
+        }
+
+        .timeline-item {
+            display: flex;
+            gap: 15px;
+            padding: 15px 0;
+            border-left: 2px solid #e5e7eb;
+            padding-left: 20px;
+            position: relative;
+        }
+
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: -6px;
+            top: 20px;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #667eea;
+        }
+
+        .timeline-date {
+            color: #6b7280;
+            font-size: 12px;
+            min-width: 120px;
+        }
+
+        .timeline-content {
+            flex: 1;
+        }
+
+        .timeline-title {
+            color: #1f2937;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .timeline-description {
+            color: #6b7280;
+            font-size: 14px;
+        }
+
+        .metrics {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .metric-card {
+            background: #f9fafb;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .metric-value {
+            color: #667eea;
+            font-size: 28px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .metric-label {
+            color: #6b7280;
+            font-size: 12px;
+            text-transform: uppercase;
+        }
+
+        .chart-container {
+            margin-top: 15px;
+            height: 200px;
+            background: #f9fafb;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #6b7280;
+        }
+
+        .conexoes-list {
+            margin-top: 15px;
+        }
+
+        .conexao-item {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            background: #f9fafb;
+            border-radius: 5px;
+            margin-bottom: 8px;
+        }
+
+        .conexao-arrow {
+            margin: 0 10px;
+            color: #667eea;
+            font-weight: bold;
+        }
+
+        .sensor-readings {
+            margin-top: 15px;
+        }
+
+        .reading-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px;
+            background: #f9fafb;
+            border-radius: 5px;
+            margin-bottom: 8px;
+        }
+
+        .reading-label {
+            color: #6b7280;
+            font-size: 14px;
+        }
+
+        .reading-value {
+            color: #1f2937;
+            font-weight: 600;
+        }
+
+        .actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .print-btn {
+            background: #10b981;
+            color: white;
+        }
+
+        .print-btn:hover {
+            background: #059669;
+        }
+
+        @media print {
+            .header .btn, .actions {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="navbar-placeholder"></div>
+    
+    <div class="main-content">
+        <div class="container">
+            <div class="header">
+            <div class="header-left">
+                <div class="header-icon" id="headerIcon">🏺</div>
+                <div class="header-info">
+                    <h1 id="elementoNome">Carregando...</h1>
+                    <p id="elementoTipo">-</p>
+                </div>
+                <span class="status-badge status-ativo" id="elementoStatus">Ativo</span>
+            </div>
+            <div class="actions">
+                <button class="btn btn-secondary" onclick="window.close()">← Voltar</button>
+                <button class="btn btn-primary" onclick="editarElemento()">✏️ Editar</button>
+                <button class="btn print-btn" onclick="window.print()">🖨️ Imprimir</button>
+            </div>
+        </div>
+
+        <div class="grid-2">
+            <div>
+                <!-- Informações Básicas -->
+                <div class="card">
+                    <h2>📋 Informações Básicas</h2>
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <div class="info-label">ID do Elemento</div>
+                            <div class="info-value" id="infoId">-</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Tipo</div>
+                            <div class="info-value" id="infoTipo">-</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Capacidade</div>
+                            <div class="info-value" id="infoCapacidade">-</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Fabricante</div>
+                            <div class="info-value" id="infoFabricante">-</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Modelo</div>
+                            <div class="info-value" id="infoModelo">-</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Data de Instalação</div>
+                            <div class="info-value" id="infoInstalacao">-</div>
+                        </div>
+                    </div>
+                    <div class="info-item" style="margin-top: 15px;">
+                        <div class="info-label">Descrição</div>
+                        <div class="info-value" id="infoDescricao" style="font-weight: 400;">-</div>
+                    </div>
+                </div>
+
+                <!-- Localização -->
+                <div class="card" style="margin-top: 20px;">
+                    <h2>📍 Localização</h2>
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <div class="info-label">Coordenada X</div>
+                            <div class="info-value" id="infoCoordX">-</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Coordenada Y</div>
+                            <div class="info-value" id="infoCoordY">-</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Altura (Z)</div>
+                            <div class="info-value" id="infoCoordZ">-</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Latitude</div>
+                            <div class="info-value" id="infoLatitude">-</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Longitude</div>
+                            <div class="info-value" id="infoLongitude">-</div>
+                        </div>
+                    </div>
+                    <div class="map-container" id="mapContainer">
+                        🗺️ Mapa será exibido aqui
+                    </div>
+                </div>
+
+                <!-- Leituras Recentes (se for sensor) -->
+                <div class="card" id="leiturasCard" style="margin-top: 20px; display: none;">
+                    <h2>📊 Leituras Recentes</h2>
+                    <div class="sensor-readings" id="leiturasContainer">
+                        <!-- Leituras carregadas dinamicamente -->
+                    </div>
+                    <div class="chart-container">
+                        📈 Gráfico de leituras (em desenvolvimento)
+                    </div>
+                </div>
+            </div>
+
+            <div>
+                <!-- Métricas -->
+                <div class="card">
+                    <h2>📊 Métricas</h2>
+                    <div class="metrics">
+                        <div class="metric-card">
+                            <div class="metric-value" id="metricLeituras">0</div>
+                            <div class="metric-label">Leituras</div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-value" id="metricEventos">0</div>
+                            <div class="metric-label">Eventos</div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-value" id="metricUptime">100%</div>
+                            <div class="metric-label">Uptime</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Conexões -->
+                <div class="card" style="margin-top: 20px;">
+                    <h2>🔗 Conexões</h2>
+                    <div class="conexoes-list" id="conexoesList">
+                        <p style="color: #6b7280; text-align: center; padding: 20px;">Nenhuma conexão</p>
+                    </div>
+                </div>
+
+                <!-- Sensores Vinculados -->
+                <div class="card" id="sensoresCard" style="margin-top: 20px; display: none;">
+                    <h2>📡 Sensores Vinculados</h2>
+                    <div id="sensoresVinculados">
+                        <!-- Sensores carregados dinamicamente -->
+                    </div>
+                </div>
+
+                <!-- Atuadores Vinculados -->
+                <div class="card" id="atuadoresCard" style="margin-top: 20px; display: none;">
+                    <h2>⚡ Atuadores</h2>
+                    <div id="atuadoresVinculados">
+                        <!-- Atuadores carregados dinamicamente -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Histórico -->
+        <div class="card">
+            <h2>📅 Histórico de Eventos</h2>
+            <div class="timeline" id="timelineContainer">
+                <div class="timeline-item">
+                    <div class="timeline-date">30/10/2025 14:30</div>
+                    <div class="timeline-content">
+                        <div class="timeline-title">Elemento criado</div>
+                        <div class="timeline-description">Elemento adicionado ao sistema</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = 'http://localhost:3000/api';
+        let elementoId = null;
+
+        // Obter ID da URL
+        const urlParams = new URLSearchParams(window.location.search);
+        elementoId = urlParams.get('id');
+
+        if (!elementoId) {
+            alert('ID do elemento não fornecido');
+            window.close();
+        }
+
+        // Ícones por tipo
+        const tipoIcons = {
+            'reservatorio': '🏺',
+            'bomba': '⚙️',
+            'valvula': '🔘',
+            'sensor': '📡',
+            'rede': '🔗',
+            'consumidor': '🏢'
+        };
+
+        const tipoLabels = {
+            'reservatorio': 'Reservatório',
+            'bomba': 'Bomba',
+            'valvula': 'Válvula',
+            'sensor': 'Sensor',
+            'rede': 'Rede',
+            'consumidor': 'Consumidor'
+        };
+
+        const tipoColors = {
+            'reservatorio': '#3b82f6',
+            'bomba': '#10b981',
+            'valvula': '#f59e0b',
+            'sensor': '#8b5cf6',
+            'rede': '#6b7280',
+            'consumidor': '#ef4444'
+        };
+
+        async function loadElemento() {
+            try {
+                const response = await fetch(`${API_URL}/elementos/${elementoId}`);
+                const elem = await response.json();
+
+                // Header
+                document.getElementById('elementoNome').textContent = elem.nome;
+                document.getElementById('elementoTipo').textContent = tipoLabels[elem.tipo] || elem.tipo;
+                document.getElementById('headerIcon').textContent = tipoIcons[elem.tipo] || '📦';
+                document.getElementById('headerIcon').style.background = tipoColors[elem.tipo] + '20';
+                document.getElementById('headerIcon').style.color = tipoColors[elem.tipo];
+                
+                const statusBadge = document.getElementById('elementoStatus');
+                statusBadge.textContent = elem.ativo ? 'Ativo' : 'Inativo';
+                statusBadge.className = `status-badge ${elem.ativo ? 'status-ativo' : 'status-inativo'}`;
+                
+                document.title = `${elem.nome} - AguadaPy`;
+
+                // Informações básicas
+                document.getElementById('infoId').textContent = elem.id;
+                document.getElementById('infoTipo').textContent = tipoLabels[elem.tipo] || elem.tipo;
+                document.getElementById('infoCapacidade').textContent = elem.capacidade_litros 
+                    ? `${elem.capacidade_litros.toLocaleString('pt-BR')} L` 
+                    : '-';
+                document.getElementById('infoDescricao').textContent = elem.descricao || 'Sem descrição';
+
+                // Metadados
+                if (elem.meta) {
+                    document.getElementById('infoFabricante').textContent = elem.meta.fabricante || '-';
+                    document.getElementById('infoModelo').textContent = elem.meta.modelo || '-';
+                    document.getElementById('infoInstalacao').textContent = elem.meta.data_instalacao 
+                        ? new Date(elem.meta.data_instalacao).toLocaleDateString('pt-BR')
+                        : '-';
+                }
+
+                // Localização
+                document.getElementById('infoCoordX').textContent = elem.coord_x || '-';
+                document.getElementById('infoCoordY').textContent = elem.coord_y || '-';
+                document.getElementById('infoCoordZ').textContent = elem.coord_z ? `${elem.coord_z} m` : '-';
+                document.getElementById('infoLatitude').textContent = elem.latitude || '-';
+                document.getElementById('infoLongitude').textContent = elem.longitude || '-';
+
+                // Se tiver coordenadas, mostrar no mapa
+                if (elem.latitude && elem.longitude) {
+                    const mapContainer = document.getElementById('mapContainer');
+                    mapContainer.innerHTML = `
+                        <iframe 
+                            width="100%" 
+                            height="300" 
+                            frameborder="0" 
+                            style="border:0; border-radius: 8px;" 
+                            src="https://www.openstreetmap.org/export/embed.html?bbox=${elem.longitude-0.01},${elem.latitude-0.01},${elem.longitude+0.01},${elem.latitude+0.01}&layer=mapnik&marker=${elem.latitude},${elem.longitude}"
+                            allowfullscreen>
+                        </iframe>
+                    `;
+                }
+
+                // Carregar dados adicionais
+                loadConexoes(elem.id);
+                loadSensores(elem.id);
+                loadAtuadores(elem.id);
+                loadLeituras(elem.id);
+                loadEventos(elem.id);
+
+            } catch (error) {
+                console.error('Erro ao carregar elemento:', error);
+                alert('Erro ao carregar dados do elemento');
+            }
+        }
+
+        async function loadConexoes(id) {
+            try {
+                const response = await fetch(`${API_URL}/elementos/${id}/conexoes`);
+                const conexoes = await response.json();
+                
+                const container = document.getElementById('conexoesList');
+                
+                if (conexoes.length === 0) {
+                    container.innerHTML = '<p style="color: #6b7280; text-align: center; padding: 20px;">Nenhuma conexão</p>';
+                    return;
+                }
+
+                container.innerHTML = '';
+                conexoes.forEach(con => {
+                    const div = document.createElement('div');
+                    div.className = 'conexao-item';
+                    div.innerHTML = `
+                        <span>${con.origem_nome}</span>
+                        <span class="conexao-arrow">→</span>
+                        <span>${con.destino_nome}</span>
+                    `;
+                    container.appendChild(div);
+                });
+            } catch (error) {
+                console.error('Erro ao carregar conexões:', error);
+            }
+        }
+
+        async function loadSensores(id) {
+            try {
+                const response = await fetch(`${API_URL}/elementos/${id}/sensores`);
+                const sensores = await response.json();
+                
+                if (sensores.length > 0) {
+                    document.getElementById('sensoresCard').style.display = 'block';
+                    const container = document.getElementById('sensoresVinculados');
+                    container.innerHTML = '';
+                    
+                    sensores.forEach(sensor => {
+                        const div = document.createElement('div');
+                        div.className = 'reading-row';
+                        div.innerHTML = `
+                            <span class="reading-label">📡 ${sensor.tipo}</span>
+                            <span class="reading-value">${sensor.modelo || '-'}</span>
+                        `;
+                        container.appendChild(div);
+                    });
+                }
+            } catch (error) {
+                console.error('Erro ao carregar sensores:', error);
+            }
+        }
+
+        async function loadAtuadores(id) {
+            try {
+                const response = await fetch(`${API_URL}/elementos/${id}/atuadores`);
+                const atuadores = await response.json();
+                
+                if (atuadores.length > 0) {
+                    document.getElementById('atuadoresCard').style.display = 'block';
+                    const container = document.getElementById('atuadoresVinculados');
+                    container.innerHTML = '';
+                    
+                    atuadores.forEach(atu => {
+                        const div = document.createElement('div');
+                        div.className = 'reading-row';
+                        div.innerHTML = `
+                            <span class="reading-label">⚡ ${atu.tipo}</span>
+                            <span class="reading-value">${atu.estado ? 'ON' : 'OFF'}</span>
+                        `;
+                        container.appendChild(div);
+                    });
+                }
+            } catch (error) {
+                console.error('Erro ao carregar atuadores:', error);
+            }
+        }
+
+        async function loadLeituras(id) {
+            try {
+                const response = await fetch(`${API_URL}/elementos/${id}/leituras?limit=10`);
+                const leituras = await response.json();
+                
+                if (leituras.length > 0) {
+                    document.getElementById('leiturasCard').style.display = 'block';
+                    document.getElementById('metricLeituras').textContent = leituras.length;
+                    
+                    const container = document.getElementById('leiturasContainer');
+                    container.innerHTML = '';
+                    
+                    leituras.forEach(leitura => {
+                        const div = document.createElement('div');
+                        div.className = 'reading-row';
+                        const data = new Date(leitura.datetime).toLocaleString('pt-BR');
+                        div.innerHTML = `
+                            <span class="reading-label">${data}</span>
+                            <span class="reading-value">${leitura.valor} ${leitura.unidade}</span>
+                        `;
+                        container.appendChild(div);
+                    });
+                }
+            } catch (error) {
+                console.error('Erro ao carregar leituras:', error);
+            }
+        }
+
+        async function loadEventos(id) {
+            try {
+                const response = await fetch(`${API_URL}/elementos/${id}/eventos`);
+                const eventos = await response.json();
+                
+                if (eventos.length > 0) {
+                    document.getElementById('metricEventos').textContent = eventos.length;
+                    
+                    const container = document.getElementById('timelineContainer');
+                    container.innerHTML = '';
+                    
+                    eventos.forEach(evento => {
+                        const div = document.createElement('div');
+                        div.className = 'timeline-item';
+                        const data = new Date(evento.datetime_inicio).toLocaleString('pt-BR');
+                        div.innerHTML = `
+                            <div class="timeline-date">${data}</div>
+                            <div class="timeline-content">
+                                <div class="timeline-title">${evento.tipo}</div>
+                                <div class="timeline-description">${evento.detalhe || '-'}</div>
+                            </div>
+                        `;
+                        container.appendChild(div);
+                    });
+                }
+            } catch (error) {
+                console.error('Erro ao carregar eventos:', error);
+            }
+        }
+
+        function editarElemento() {
+            window.opener.location.href = `config.html?edit=${elementoId}`;
+            window.close();
+        }
+
+        // Carregar dados ao iniciar
+        document.addEventListener('DOMContentLoaded', loadElemento);
+    </script>
+    <script src="navbar.js"></script>
+</body>
+</html>

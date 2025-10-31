@@ -1,0 +1,906 @@
+{
+  "sistema": {
+    "nome": "Sistema Supervisório Hidráulico AguadaPy",
+    "versao": "1.0",
+    "descricao": "Sistema de monitoramento de reservatórios com compressão inteligente de dados",
+    "objetivo": "Reduzir quantidade de dados em banco mantendo informações relevantes",
+    "contexto": {
+      "tipo": "Supervisório de nível de água em reservatórios",
+      "sensor": "Ultrassom HC-SR04",
+      "nodes": "ESP32 e Arduino Nano",
+      "frequencia_leitura": "30 segundos",
+      "processamento": "Mediana de amostras",
+      "escala": {
+        "reservatorios": 6,
+        "bombas": "5-10",
+        "valvulas": "~20"
+      }
+    }
+  },
+  
+  "constantes": {
+    "densidade_agua": 1000,
+    "gravidade": 9.81,
+    "unidade_volume": "litros",
+    "unidade_distancia": "cm",
+    "unidade_pressao": "Pa",
+    "dt_leitura_segundos": 30
+  },
+
+  "estrategia_compressao": {
+    "nome": "Delta Logging com Deadband Filtering",
+    "descricao": "Registra estado, não cada leitura. Detecta eventos significativos e ignora flutuações menores",
+    "metodos": [
+      "Deadband filtering: faixa de tolerância, descarta oscilações dentro da banda",
+      "Time Compression: mantém apenas pontos-chave que preservam a forma da curva",
+      "Event-based storage: grava apenas quando eventos externos indicam relevância"
+    ],
+    "parametros": {
+      "janela_amostras": 11,
+      "variacao_minima_cm": 2,
+      "variacao_percentual": 0.5,
+      "estabilidade_stddev": 0.5
+    }
+  },
+
+  "schema": {
+    "tabelas": {
+      "elemento": {
+        "descricao": "Tabela mãe de todos os componentes físicos/lógicos",
+        "campos": {
+          "id": {
+            "tipo": "SERIAL PRIMARY KEY",
+            "descricao": "Identificador único"
+          },
+          "nome": {
+            "tipo": "VARCHAR(50) NOT NULL",
+            "descricao": "Nome do elemento"
+          },
+          "tipo": {
+            "tipo": "VARCHAR(30) NOT NULL",
+            "descricao": "Tipo: 'reservatorio', 'bomba', 'valvula', 'sensor', 'rede', 'consumidor'",
+            "valores_possiveis": ["reservatorio", "bomba", "valvula", "sensor", "rede", "consumidor", "hidrometro"]
+          },
+          "descricao": {
+            "tipo": "TEXT",
+            "descricao": "Descrição detalhada"
+          },
+          "capacidade_litros": {
+            "tipo": "FLOAT",
+            "descricao": "Capacidade nominal (aplicável a reservatórios)"
+          },
+          "coord_x": {
+            "tipo": "FLOAT",
+            "descricao": "Coordenada X na planta"
+          },
+          "coord_y": {
+            "tipo": "FLOAT",
+            "descricao": "Coordenada Y na planta"
+          },
+          "coord_z": {
+            "tipo": "FLOAT",
+            "descricao": "Altura/altitude"
+          },
+          "latitude": {
+            "tipo": "DOUBLE PRECISION",
+            "descricao": "Latitude geográfica (WGS84)"
+          },
+          "longitude": {
+            "tipo": "DOUBLE PRECISION",
+            "descricao": "Longitude geográfica (WGS84)"
+          },
+          "ativo": {
+            "tipo": "BOOLEAN DEFAULT TRUE",
+            "descricao": "Se o elemento está ativo no sistema"
+          },
+          "meta": {
+            "tipo": "JSONB",
+            "descricao": "Metadados específicos (fabricante, modelo, instalação, etc)"
+          }
+        }
+      },
+
+      "conexao": {
+        "descricao": "Liga saídas e entradas de elementos (grafo hidráulico)",
+        "campos": {
+          "id": {
+            "tipo": "SERIAL PRIMARY KEY"
+          },
+          "origem_id": {
+            "tipo": "INT NOT NULL REFERENCES elemento(id) ON DELETE CASCADE",
+            "descricao": "Elemento de origem"
+          },
+          "destino_id": {
+            "tipo": "INT NOT NULL REFERENCES elemento(id) ON DELETE CASCADE",
+            "descricao": "Elemento de destino"
+          },
+          "tipo": {
+            "tipo": "VARCHAR(20)",
+            "descricao": "Tipo de conexão: 'hidraulica', 'logica', 'eletrica'",
+            "valores_possiveis": ["hidraulica", "logica", "eletrica"]
+          },
+          "descricao": {
+            "tipo": "TEXT",
+            "descricao": "Descrição da conexão (ex: 'RES_CONS.in01 <- VALV_ABAST.out')"
+          },
+          "ativo": {
+            "tipo": "BOOLEAN DEFAULT TRUE"
+          }
+        },
+        "constraints": [
+          "UNIQUE (origem_id, destino_id)"
+        ]
+      },
+
+      "sensor": {
+        "descricao": "Sensores vinculados a elementos",
+        "campos": {
+          "id": {
+            "tipo": "SERIAL PRIMARY KEY"
+          },
+          "elemento_id": {
+            "tipo": "INT NOT NULL REFERENCES elemento(id) ON DELETE CASCADE"
+          },
+          "tipo": {
+            "tipo": "VARCHAR(30) NOT NULL",
+            "descricao": "Tipo: 'ultrassom', 'pressao', 'vazao', 'temperatura', 'corrente'",
+            "valores_possiveis": ["ultrassom", "pressao", "vazao", "temperatura", "corrente", "nivel"]
+          },
+          "modelo": {
+            "tipo": "VARCHAR(50)",
+            "descricao": "Modelo do sensor (ex: HC-SR04)"
+          },
+          "unidade": {
+            "tipo": "VARCHAR(10)",
+            "descricao": "Unidade de medida (cm, Pa, m3/s, °C)"
+          },
+          "precisao": {
+            "tipo": "FLOAT",
+            "descricao": "Precisão do sensor"
+          },
+          "freq_padrao_s": {
+            "tipo": "INT",
+            "descricao": "Frequência padrão de leitura em segundos"
+          },
+          "fator_calibracao": {
+            "tipo": "FLOAT DEFAULT 1.0",
+            "descricao": "Fator multiplicativo de calibração"
+          },
+          "offset": {
+            "tipo": "FLOAT DEFAULT 0.0",
+            "descricao": "Offset aditivo de calibração"
+          },
+          "estado_operacional": {
+            "tipo": "VARCHAR(20)",
+            "descricao": "Estado: 'OK', 'FALHA', 'CALIBRACAO', 'MANUTENCAO'"
+          },
+          "ultima_calibracao": {
+            "tipo": "TIMESTAMPTZ"
+          },
+          "ativo": {
+            "tipo": "BOOLEAN DEFAULT TRUE"
+          },
+          "meta": {
+            "tipo": "JSONB",
+            "descricao": "Metadados (fabricante, número série, etc)"
+          }
+        }
+      },
+
+      "atuador": {
+        "descricao": "Atuadores (bombas, válvulas) vinculados a elementos",
+        "campos": {
+          "id": {
+            "tipo": "SERIAL PRIMARY KEY"
+          },
+          "elemento_id": {
+            "tipo": "INT NOT NULL REFERENCES elemento(id) ON DELETE CASCADE"
+          },
+          "tipo": {
+            "tipo": "VARCHAR(30) NOT NULL",
+            "descricao": "Tipo: 'bomba', 'valvula'",
+            "valores_possiveis": ["bomba", "valvula"]
+          },
+          "estado": {
+            "tipo": "BOOLEAN DEFAULT FALSE",
+            "descricao": "TRUE = ligado/aberto, FALSE = desligado/fechado"
+          },
+          "modo_controle": {
+            "tipo": "VARCHAR(20) DEFAULT 'manual'",
+            "descricao": "Modo: 'manual', 'automatico', 'remoto'",
+            "valores_possiveis": ["manual", "automatico", "remoto"]
+          },
+          "potencia_w": {
+            "tipo": "FLOAT",
+            "descricao": "Potência nominal (para bombas)"
+          },
+          "ativo": {
+            "tipo": "BOOLEAN DEFAULT TRUE"
+          },
+          "meta": {
+            "tipo": "JSONB"
+          }
+        }
+      },
+
+      "usuario": {
+        "descricao": "Usuários do sistema (operadores, técnicos)",
+        "campos": {
+          "id": {
+            "tipo": "SERIAL PRIMARY KEY"
+          },
+          "nome": {
+            "tipo": "VARCHAR(100) NOT NULL"
+          },
+          "email": {
+            "tipo": "VARCHAR(100) UNIQUE"
+          },
+          "login": {
+            "tipo": "VARCHAR(50) UNIQUE NOT NULL"
+          },
+          "senha_hash": {
+            "tipo": "VARCHAR(255)"
+          },
+          "papel": {
+            "tipo": "VARCHAR(20)",
+            "descricao": "Papel: 'admin', 'operador', 'visualizador'",
+            "valores_possiveis": ["admin", "operador", "tecnico", "visualizador"]
+          },
+          "nivel_acesso": {
+            "tipo": "INT DEFAULT 1",
+            "descricao": "Nível de acesso numérico"
+          },
+          "ativo": {
+            "tipo": "BOOLEAN DEFAULT TRUE"
+          },
+          "criado_em": {
+            "tipo": "TIMESTAMPTZ DEFAULT NOW()"
+          }
+        }
+      },
+
+      "leituras_raw": {
+        "descricao": "Leituras brutas dos sensores (todos os dados recebidos)",
+        "campos": {
+          "id": {
+            "tipo": "BIGSERIAL PRIMARY KEY"
+          },
+          "sensor_id": {
+            "tipo": "INT NOT NULL REFERENCES sensor(id)"
+          },
+          "elemento_id": {
+            "tipo": "INT NOT NULL REFERENCES elemento(id)"
+          },
+          "variavel": {
+            "tipo": "VARCHAR(30) NOT NULL",
+            "descricao": "Variável medida: 'nivel_cm', 'pressao_Pa', 'vazao_m3s', etc"
+          },
+          "valor": {
+            "tipo": "NUMERIC NOT NULL",
+            "descricao": "Valor bruto medido"
+          },
+          "unidade": {
+            "tipo": "VARCHAR(10)"
+          },
+          "fonte": {
+            "tipo": "VARCHAR(20) NOT NULL",
+            "descricao": "Fonte: 'sensor', 'usuario', 'sistema'",
+            "valores_possiveis": ["sensor", "usuario", "sistema"]
+          },
+          "autor": {
+            "tipo": "VARCHAR(50)",
+            "descricao": "Nome do node, usuário ou processo que gerou a leitura"
+          },
+          "modo": {
+            "tipo": "VARCHAR(20)",
+            "descricao": "Modo: 'automatica', 'manual'",
+            "valores_possiveis": ["automatica", "manual"]
+          },
+          "observacao": {
+            "tipo": "TEXT"
+          },
+          "datetime": {
+            "tipo": "TIMESTAMPTZ DEFAULT NOW()",
+            "descricao": "Data/hora da leitura"
+          },
+          "processed": {
+            "tipo": "BOOLEAN DEFAULT FALSE",
+            "descricao": "Se já foi processada e agregada"
+          }
+        },
+        "indices": [
+          "CREATE INDEX idx_leituras_raw_sensor_datetime ON leituras_raw(sensor_id, datetime)",
+          "CREATE INDEX idx_leituras_raw_elemento_datetime ON leituras_raw(elemento_id, datetime)",
+          "CREATE INDEX idx_leituras_raw_processed ON leituras_raw(processed)"
+        ]
+      },
+
+      "leituras_processadas": {
+        "descricao": "Leituras processadas/agregadas (apenas mudanças significativas)",
+        "campos": {
+          "id": {
+            "tipo": "BIGSERIAL PRIMARY KEY"
+          },
+          "elemento_id": {
+            "tipo": "INT NOT NULL REFERENCES elemento(id)"
+          },
+          "variavel": {
+            "tipo": "VARCHAR(30) NOT NULL"
+          },
+          "valor_mediana": {
+            "tipo": "NUMERIC NOT NULL",
+            "descricao": "Valor mediana do período"
+          },
+          "valor_min": {
+            "tipo": "NUMERIC"
+          },
+          "valor_max": {
+            "tipo": "NUMERIC"
+          },
+          "stddev": {
+            "tipo": "NUMERIC",
+            "descricao": "Desvio padrão no período"
+          },
+          "n_amostras": {
+            "tipo": "INT",
+            "descricao": "Número de amostras agregadas"
+          },
+          "data_inicio": {
+            "tipo": "TIMESTAMPTZ NOT NULL"
+          },
+          "data_fim": {
+            "tipo": "TIMESTAMPTZ NOT NULL"
+          },
+          "fonte": {
+            "tipo": "VARCHAR(20)"
+          },
+          "autor": {
+            "tipo": "VARCHAR(50)"
+          },
+          "meta": {
+            "tipo": "JSONB",
+            "descricao": "Metadados adicionais do processamento"
+          }
+        },
+        "indices": [
+          "CREATE INDEX idx_leituras_proc_elemento_datafim ON leituras_processadas(elemento_id, data_fim)"
+        ]
+      },
+
+      "estado_elemento": {
+        "descricao": "Histórico de estados de bombas e válvulas",
+        "campos": {
+          "id": {
+            "tipo": "BIGSERIAL PRIMARY KEY"
+          },
+          "elemento_id": {
+            "tipo": "INT NOT NULL REFERENCES elemento(id)"
+          },
+          "atributo": {
+            "tipo": "VARCHAR(30)",
+            "descricao": "Atributo: 'estado', 'modo', 'potencia', etc"
+          },
+          "valor": {
+            "tipo": "VARCHAR(50)",
+            "descricao": "Valor do atributo (ON, OFF, ABERTA, FECHADA, etc)"
+          },
+          "fonte": {
+            "tipo": "VARCHAR(20)",
+            "valores_possiveis": ["sensor", "usuario", "sistema", "automatico"]
+          },
+          "autor": {
+            "tipo": "VARCHAR(50)"
+          },
+          "datetime": {
+            "tipo": "TIMESTAMPTZ DEFAULT NOW()"
+          },
+          "observacao": {
+            "tipo": "TEXT"
+          }
+        }
+      },
+
+      "eventos": {
+        "descricao": "Eventos detectados automaticamente ou registrados manualmente",
+        "campos": {
+          "id": {
+            "tipo": "BIGSERIAL PRIMARY KEY"
+          },
+          "tipo": {
+            "tipo": "VARCHAR(30) NOT NULL",
+            "descricao": "Tipo do evento",
+            "valores_possiveis": ["abastecimento", "consumo", "vazamento", "falha_sensor", "calibracao", "manutencao", "alerta_nivel"]
+          },
+          "elemento_id": {
+            "tipo": "INT REFERENCES elemento(id)"
+          },
+          "severidade": {
+            "tipo": "VARCHAR(20)",
+            "descricao": "Severidade: 'info', 'aviso', 'critico'",
+            "valores_possiveis": ["info", "aviso", "alerta", "critico"]
+          },
+          "detalhe": {
+            "tipo": "JSONB",
+            "descricao": "Detalhes do evento (volumes, deltas, etc)"
+          },
+          "causa_provavel": {
+            "tipo": "TEXT"
+          },
+          "nivel_confianca": {
+            "tipo": "NUMERIC",
+            "descricao": "Confiança da detecção (0.0 a 1.0)"
+          },
+          "detectado_por": {
+            "tipo": "VARCHAR(50)",
+            "descricao": "Algoritmo ou usuário que detectou"
+          },
+          "datetime_inicio": {
+            "tipo": "TIMESTAMPTZ"
+          },
+          "datetime_fim": {
+            "tipo": "TIMESTAMPTZ"
+          },
+          "resolvido": {
+            "tipo": "BOOLEAN DEFAULT FALSE"
+          },
+          "resolucao": {
+            "tipo": "TEXT"
+          }
+        },
+        "indices": [
+          "CREATE INDEX idx_eventos_elemento_tipo ON eventos(elemento_id, tipo)",
+          "CREATE INDEX idx_eventos_datetime ON eventos(datetime_inicio)"
+        ]
+      },
+
+      "calibracoes": {
+        "descricao": "Registro de calibrações de sensores e elementos",
+        "campos": {
+          "id": {
+            "tipo": "SERIAL PRIMARY KEY"
+          },
+          "sensor_id": {
+            "tipo": "INT REFERENCES sensor(id)"
+          },
+          "elemento_id": {
+            "tipo": "INT REFERENCES elemento(id)"
+          },
+          "responsavel_usuario_id": {
+            "tipo": "INT REFERENCES usuario(id)"
+          },
+          "datetime": {
+            "tipo": "TIMESTAMPTZ DEFAULT NOW()"
+          },
+          "tipo": {
+            "tipo": "VARCHAR(20)",
+            "descricao": "Tipo: 'manual', 'automatica'",
+            "valores_possiveis": ["manual", "automatica"]
+          },
+          "valor_referencia": {
+            "tipo": "NUMERIC",
+            "descricao": "Valor de referência correto"
+          },
+          "valor_sensor": {
+            "tipo": "NUMERIC",
+            "descricao": "Valor lido pelo sensor antes da calibração"
+          },
+          "ajuste_aplicado": {
+            "tipo": "TEXT",
+            "descricao": "Descrição do ajuste (fator, offset, etc)"
+          },
+          "observacao": {
+            "tipo": "TEXT"
+          }
+        }
+      },
+
+      "hidrometros": {
+        "descricao": "Leituras manuais de hidrômetros",
+        "campos": {
+          "id": {
+            "tipo": "SERIAL PRIMARY KEY"
+          },
+          "elemento_id": {
+            "tipo": "INT REFERENCES elemento(id)"
+          },
+          "datetime": {
+            "tipo": "TIMESTAMPTZ DEFAULT NOW()"
+          },
+          "leitura_m3": {
+            "tipo": "NUMERIC NOT NULL",
+            "descricao": "Leitura em metros cúbicos"
+          },
+          "usuario_id": {
+            "tipo": "INT REFERENCES usuario(id)"
+          },
+          "observacao": {
+            "tipo": "TEXT"
+          }
+        }
+      },
+
+      "coordenadas": {
+        "descricao": "Coordenadas espaciais dos elementos (para visualização em mapas)",
+        "campos": {
+          "id": {
+            "tipo": "SERIAL PRIMARY KEY"
+          },
+          "elemento_id": {
+            "tipo": "INT NOT NULL REFERENCES elemento(id) ON DELETE CASCADE"
+          },
+          "latitude": {
+            "tipo": "DOUBLE PRECISION"
+          },
+          "longitude": {
+            "tipo": "DOUBLE PRECISION"
+          },
+          "altitude_m": {
+            "tipo": "FLOAT"
+          },
+          "coord_x": {
+            "tipo": "FLOAT",
+            "descricao": "Coordenada X na planta local"
+          },
+          "coord_y": {
+            "tipo": "FLOAT",
+            "descricao": "Coordenada Y na planta local"
+          },
+          "mapa_layer": {
+            "tipo": "VARCHAR(50) DEFAULT 'principal'",
+            "descricao": "Camada do mapa (subsolo, terreo, cobertura, etc)"
+          }
+        }
+      },
+
+      "relatorio_diario": {
+        "descricao": "Relatórios diários gerados automaticamente às 6h",
+        "campos": {
+          "id": {
+            "tipo": "SERIAL PRIMARY KEY"
+          },
+          "data": {
+            "tipo": "DATE DEFAULT CURRENT_DATE"
+          },
+          "resumo": {
+            "tipo": "TEXT",
+            "descricao": "Resumo textual do dia"
+          },
+          "consumo_total_litros": {
+            "tipo": "NUMERIC",
+            "descricao": "Consumo total em litros"
+          },
+          "abastecimento_total_litros": {
+            "tipo": "NUMERIC"
+          },
+          "perda_estimada_litros": {
+            "tipo": "NUMERIC",
+            "descricao": "Diferença entre abastecimento e consumo (possível vazamento)"
+          },
+          "eventos_criticos": {
+            "tipo": "INT DEFAULT 0"
+          },
+          "eventos_avisos": {
+            "tipo": "INT DEFAULT 0"
+          },
+          "dados_json": {
+            "tipo": "JSONB",
+            "descricao": "Dados detalhados em JSON (por reservatório, consumo horário, etc)"
+          },
+          "gerado_em": {
+            "tipo": "TIMESTAMPTZ DEFAULT NOW()"
+          }
+        }
+      },
+
+      "ativo_configs": {
+        "descricao": "Configurações específicas por elemento (deadband, janelas, etc)",
+        "campos": {
+          "id": {
+            "tipo": "SERIAL PRIMARY KEY"
+          },
+          "elemento_id": {
+            "tipo": "INT NOT NULL UNIQUE REFERENCES elemento(id)"
+          },
+          "deadband": {
+            "tipo": "NUMERIC",
+            "descricao": "Faixa de tolerância para compressão de dados"
+          },
+          "window_size": {
+            "tipo": "INT",
+            "descricao": "Tamanho da janela de agregação (número de amostras)"
+          },
+          "stability_stddev": {
+            "tipo": "NUMERIC",
+            "descricao": "Desvio padrão máximo para considerar estável"
+          },
+          "nivel_minimo": {
+            "tipo": "NUMERIC",
+            "descricao": "Nível mínimo permitido (alerta)"
+          },
+          "nivel_maximo": {
+            "tipo": "NUMERIC",
+            "descricao": "Nível máximo permitido (alerta)"
+          },
+          "updated_at": {
+            "tipo": "TIMESTAMPTZ DEFAULT NOW()"
+          }
+        }
+      },
+
+      "log_eventos": {
+        "descricao": "Log de todas as ações manuais ou automáticas no sistema",
+        "campos": {
+          "id": {
+            "tipo": "BIGSERIAL PRIMARY KEY"
+          },
+          "datetime": {
+            "tipo": "TIMESTAMPTZ DEFAULT NOW()"
+          },
+          "tipo": {
+            "tipo": "VARCHAR(30)",
+            "descricao": "Tipo: 'alteracao', 'alerta', 'calibracao', 'manutencao'",
+            "valores_possiveis": ["alteracao", "alerta", "calibracao", "manutencao", "login", "config"]
+          },
+          "descricao": {
+            "tipo": "TEXT"
+          },
+          "elemento_id": {
+            "tipo": "INT REFERENCES elemento(id)"
+          },
+          "usuario_id": {
+            "tipo": "INT REFERENCES usuario(id)"
+          },
+          "dados_antes": {
+            "tipo": "JSONB"
+          },
+          "dados_depois": {
+            "tipo": "JSONB"
+          }
+        }
+      }
+    }
+  },
+
+  "tipos_eventos": {
+    "ABASTECIMENTO": {
+      "descricao": "Aumento súbito e positivo do nível",
+      "deteccao": "Δvolume > threshold_abastecimento AND bomba_abastecimento = ON AND valvula_entrada = ABERTA",
+      "parametros": {
+        "delta_volume_minimo_litros": 100,
+        "tempo_maximo_minutos": 60
+      }
+    },
+    "CONSUMO": {
+      "descricao": "Redução natural do nível em ritmo aleatório ou determinado",
+      "deteccao": "Δvolume < 0 AND (bomba_consumo = ON OR valvula_consumo = ABERTA)"
+    },
+    "VAZAMENTO": {
+      "descricao": "Variação negativa lenta e constante sem acionamento de bombas/válvulas",
+      "deteccao": "Δvolume < 0 continuamente AND todas_bombas = OFF AND todas_valvulas_consumo = FECHADAS",
+      "parametros": {
+        "taxa_maxima_litros_por_hora": 10,
+        "duracao_minima_horas": 2
+      }
+    },
+    "ESTAVEL": {
+      "descricao": "Nível sem variação significativa por longo período",
+      "deteccao": "stddev(nivel) < stability_threshold AND duracao > periodo_minimo",
+      "parametros": {
+        "stddev_max_cm": 1.0,
+        "duracao_minima_horas": 4
+      }
+    },
+    "FALHA_SENSOR": {
+      "descricao": "Sensor com leitura travada ou fora do intervalo físico",
+      "deteccao": "leitura_constante > tempo_max OR leitura < min_fisico OR leitura > max_fisico"
+    }
+  },
+
+  "reservatorios_especiais": {
+    "consumo": {
+      "descricao": "Reservatório com variação ao longo do dia (principal foco de monitoramento)",
+      "caracteristicas": [
+        "Variação diária significativa",
+        "Consumo distribuído",
+        "Abastecimento pontual (início do dia)",
+        "Requer análise de tendências"
+      ]
+    },
+    "incendio": {
+      "descricao": "Rede separada de combate a incêndio",
+      "caracteristicas": [
+        "Uso muito pequeno em operação normal",
+        "Deve estar sempre acima de 70%",
+        "Esvazia rapidamente em eventos de incêndio",
+        "Tubulações e tomadas em Y separadas",
+        "Alerta crítico se < 70%"
+      ],
+      "nivel_minimo_percent": 70,
+      "prioridade": "CRITICA"
+    }
+  },
+
+  "processamento_dados": {
+    "compressao_automatica": {
+      "descricao": "Função que processa janelas de leituras e decide agregar ou criar novo registro",
+      "logica": [
+        "Pega últimas N leituras não processadas",
+        "Calcula mediana, stddev, min, max",
+        "Compara com último registro processado",
+        "Se dentro do deadband: atualiza data_fim do registro existente",
+        "Se fora do deadband: cria novo registro em leituras_processadas",
+        "Marca leituras brutas como processed = TRUE"
+      ],
+      "gatilho": "AFTER INSERT em leituras_raw quando atingir window_size amostras não processadas"
+    },
+    "relatorio_diario": {
+      "horario": "06:00",
+      "conteudo": [
+        "Resumo de volumes inicial e final de cada reservatório",
+        "Consumo total calculado (soma dos decréscimos)",
+        "Abastecimento total calculado (soma dos incrementos)",
+        "Perda estimada (abastecimento - consumo - evaporação)",
+        "Lista de eventos críticos e avisos",
+        "Estado de bombas e válvulas",
+        "Leituras de hidrômetros inseridas manualmente"
+      ],
+      "formato": "JSON + PDF + Email"
+    }
+  },
+
+  "integracao_iot": {
+    "nodes": {
+      "NODE-01": {
+        "tipo": "ESP32",
+        "comunicacao": "ESP-NOW via gateway",
+        "sensor": "HC-SR04",
+        "status": "operacional"
+      },
+      "NODE-02": {
+        "tipo": "Arduino Nano ATmega328P",
+        "comunicacao": "Ethernet ENC28J60",
+        "sensor": "HC-SR04",
+        "biblioteca": "NewPing v1.9.7",
+        "frequencia_leitura": "3s",
+        "frequencia_envio": "30s",
+        "status": "operacional"
+      },
+      "NODE-03": {
+        "tipo": "ESP32",
+        "comunicacao": "ESP-NOW via gateway",
+        "sensor": "HC-SR04",
+        "status": "operacional"
+      }
+    },
+    "backend": {
+      "framework": "FastAPI",
+      "linguagem": "Python 3.11",
+      "porta": 3000,
+      "endpoint_principal": "POST /api/leituras/raw",
+      "database": "PostgreSQL 13"
+    },
+    "frontend": {
+      "servidor": "Nginx",
+      "porta": 80,
+      "arquivos": ["dashboard.html", "debug.html"],
+      "atualizacao": "Auto-refresh 5s"
+    }
+  },
+
+  "visualizacao_espacial": {
+    "descricao": "Mapa interativo mostrando elementos e conexões",
+    "tecnologias_sugeridas": [
+      "Leaflet.js (mapas geográficos)",
+      "Konva.js (plantas 2D)",
+      "D3.js (grafos)",
+      "Three.js (visualização 3D)"
+    ],
+    "recursos": {
+      "elementos_visuais": {
+        "reservatorio": {
+          "icone": "retângulo",
+          "cor_normal": "azul",
+          "cor_alerta": "amarelo",
+          "cor_critico": "vermelho"
+        },
+        "bomba": {
+          "icone": "triângulo",
+          "cor_on": "verde",
+          "cor_off": "cinza"
+        },
+        "valvula": {
+          "icone": "círculo",
+          "cor_aberta": "verde",
+          "cor_fechada": "vermelho"
+        }
+      },
+      "conexoes": {
+        "tipo": "linhas/setas",
+        "cor": "baseada no fluxo (azul = ativo, cinza = inativo)"
+      },
+      "interatividade": [
+        "Clique no elemento: exibe histórico, gráficos, últimas leituras",
+        "Hover: mostra dados em tempo real",
+        "Filtros: por tipo, status, camada do mapa"
+      ]
+    }
+  },
+
+  "exemplo_dados": {
+    "elementos": [
+      {
+        "id": 1,
+        "nome": "RES_ABAST",
+        "tipo": "reservatorio",
+        "capacidade_litros": 50000,
+        "coord_x": 10,
+        "coord_y": 20,
+        "coord_z": 15,
+        "ativo": true
+      },
+      {
+        "id": 2,
+        "nome": "VALV_ABAST",
+        "tipo": "valvula",
+        "coord_x": 15,
+        "coord_y": 25,
+        "ativo": true
+      },
+      {
+        "id": 3,
+        "nome": "BOMBA_01",
+        "tipo": "bomba",
+        "potencia_w": 2200,
+        "coord_x": 20,
+        "coord_y": 30,
+        "ativo": true
+      },
+      {
+        "id": 4,
+        "nome": "RES_CONS",
+        "tipo": "reservatorio",
+        "capacidade_litros": 30000,
+        "coord_x": 30,
+        "coord_y": 40,
+        "coord_z": 5,
+        "ativo": true
+      }
+    ],
+    "conexoes": [
+      {
+        "id": 1,
+        "origem_id": 1,
+        "destino_id": 2,
+        "tipo": "hidraulica",
+        "descricao": "RES_ABAST.out -> VALV_ABAST.in"
+      },
+      {
+        "id": 2,
+        "origem_id": 2,
+        "destino_id": 3,
+        "tipo": "hidraulica",
+        "descricao": "VALV_ABAST.out -> BOMBA_01.in"
+      },
+      {
+        "id": 3,
+        "origem_id": 3,
+        "destino_id": 4,
+        "tipo": "hidraulica",
+        "descricao": "BOMBA_01.out -> RES_CONS.in"
+      }
+    ]
+  },
+
+  "proximos_passos": [
+    "Implementar schema SQL em PostgreSQL",
+    "Criar função de processamento/compressão de dados",
+    "Criar triggers para automação",
+    "Implementar API endpoints para CRUD de elementos",
+    "Desenvolver dashboard com mapa interativo",
+    "Implementar geração automática de relatório diário",
+    "Configurar alertas (email/Telegram) para eventos críticos",
+    "Implementar detecção preditiva de vazamentos",
+    "Adicionar análise de consumo e padrões",
+    "Integrar com CMMS para ordens de manutenção"
+  ]
+}
