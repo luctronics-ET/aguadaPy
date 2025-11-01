@@ -167,3 +167,133 @@ async def get_sensor_history(sensor_id: str, limit: int = 100) -> List[Dict[str,
     except Exception as e:
         logger.error(f"❌ Erro ao buscar histórico: {e}")
         raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.get("/consumo/hoje")
+async def get_consumo_hoje() -> Dict[str, Any]:
+    """
+    Retorna consumo, abastecimento e perdas do dia atual
+    """
+    try:
+        conn = get_db()
+        cursor = conn.cursor()
+        
+        cursor.execute("""
+            SELECT * FROM supervisorio.calcular_consumo_diario(CURRENT_DATE)
+        """)
+        
+        reservatorios = []
+        consumo_total = 0
+        abastecimento_total = 0
+        perda_total = 0
+        
+        for row in cursor.fetchall():
+            reservatorios.append({
+                "elemento_id": row['elemento_id'],
+                "nome": row['nome_elemento'],
+                "consumo_litros": float(row['consumo_litros']) if row['consumo_litros'] else 0,
+                "abastecimento_litros": float(row['abastecimento_litros']) if row['abastecimento_litros'] else 0,
+                "perda_litros": float(row['perda_litros']) if row['perda_litros'] else 0
+            })
+            consumo_total += float(row['consumo_litros']) if row['consumo_litros'] else 0
+            abastecimento_total += float(row['abastecimento_litros']) if row['abastecimento_litros'] else 0
+            perda_total += float(row['perda_litros']) if row['perda_litros'] else 0
+        
+        cursor.close()
+        conn.close()
+        
+        return {
+            "data": "hoje",
+            "consumo_total_litros": consumo_total,
+            "consumo_total_m3": consumo_total / 1000,
+            "abastecimento_total_litros": abastecimento_total,
+            "abastecimento_total_m3": abastecimento_total / 1000,
+            "perda_total_litros": perda_total,
+            "perda_total_m3": perda_total / 1000,
+            "reservatorios": reservatorios
+        }
+        
+    except Exception as e:
+        logger.error(f"❌ Erro ao calcular consumo: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.get("/consumo/periodo")
+async def get_consumo_periodo(dias: int = 7) -> List[Dict[str, Any]]:
+    """
+    Retorna consumo dos últimos N dias
+    """
+    try:
+        conn = get_db()
+        cursor = conn.cursor()
+        
+        cursor.execute("""
+            SELECT 
+                data,
+                consumo_total_litros,
+                abastecimento_total_litros,
+                perda_total_litros
+            FROM supervisorio.relatorio_diario
+            WHERE data >= CURRENT_DATE - INTERVAL '%s days'
+            ORDER BY data DESC
+        """, (dias,))
+        
+        historico = []
+        for row in cursor.fetchall():
+            historico.append({
+                "data": row['data'].isoformat() if row['data'] else None,
+                "consumo_litros": float(row['consumo_total_litros']) if row['consumo_total_litros'] else 0,
+                "consumo_m3": float(row['consumo_total_litros']) / 1000 if row['consumo_total_litros'] else 0,
+                "abastecimento_litros": float(row['abastecimento_total_litros']) if row['abastecimento_total_litros'] else 0,
+                "abastecimento_m3": float(row['abastecimento_total_litros']) / 1000 if row['abastecimento_total_litros'] else 0,
+                "perda_litros": float(row['perda_total_litros']) if row['perda_total_litros'] else 0,
+                "perda_m3": float(row['perda_total_litros']) / 1000 if row['perda_total_litros'] else 0
+            })
+        
+        cursor.close()
+        conn.close()
+        
+        return historico
+        
+    except Exception as e:
+        logger.error(f"❌ Erro ao buscar consumo período: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.get("/atividades/recentes")
+async def get_atividades_recentes(limit: int = 50):
+    """
+    Retorna atividades recentes (leituras processadas) sem repetições
+    
+    Mostra apenas mudanças significativas nos últimos 7 dias
+    """
+    try:
+        conn = get_db()
+        cursor = conn.cursor()
+        
+        cursor.execute("""
+            SELECT 
+                proc_id,
+                elemento,
+                variavel,
+                valor,
+                unidade,
+                datetime,
+                n_amostras,
+                percentual
+            FROM supervisorio.v_atividades_dashboard
+            LIMIT %s
+        """, (limit,))
+        
+        atividades = cursor.fetchall()
+        cursor.close()
+        
+        return {
+            "total": len(atividades),
+            "atividades": atividades
+        }
+        
+    except Exception as e:
+        logger.error(f"Erro ao buscar atividades: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+

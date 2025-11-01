@@ -37,6 +37,21 @@ def get_db():
         init_db()
     return _connection_pool
 
+def get_db_connection():
+    """Cria uma nova conexão com banco de dados (para threads/workers)"""
+    try:
+        conn = psycopg2.connect(
+            host=settings.DB_HOST,
+            port=settings.DB_PORT,
+            database=settings.DB_NAME,
+            user=settings.DB_USER,
+            password=settings.DB_PASSWORD
+        )
+        return conn
+    except Exception as e:
+        logger.error(f"❌ Erro ao criar conexão: {e}")
+        raise
+
 @contextmanager
 def get_cursor():
     """Context manager para cursor de banco"""
@@ -47,7 +62,7 @@ def get_cursor():
         conn.commit()
     except Exception as e:
         conn.rollback()
-        logger.error(f"Erro no banco de dados: {e}")
+        logger.error(f"Erro no banco de dados: {e}", exc_info=True)
         raise
     finally:
         cursor.close()

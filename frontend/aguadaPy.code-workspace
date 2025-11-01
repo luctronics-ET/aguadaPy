@@ -1,14 +1,7 @@
 {
-	"folders": [
-		{
-			"path": ".."
-		},
-		{
-			"path": "../../../../../home/luciano/Downloads"
-		},
-		{
-			"path": "../../../../../home/luciano/Área de trabalho/dev/icons"
-		}
-	],
-	"settings": {}
+    "folders": [
+        {
+            "path": ".."
+        }
+    ]
 }

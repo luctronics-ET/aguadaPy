@@ -1,4 +1,4 @@
-   """
+"""
 Backend API - Sistema Aguada CMMS/BMS
 FastAPI + PostgreSQL
 """
@@ -11,8 +11,10 @@ from typing import Optional
 import logging
 
 from .database import get_db, init_db
-from .api import leituras, elementos, eventos, relatorios, calibracao, dashboard
+from .api import leituras, elementos, eventos, relatorios, calibracao, dashboard, admin
 from .config import settings
+from .worker import process_compression_queue
+import asyncio
 
 # Configurar logging
 logging.basicConfig(
@@ -20,6 +22,18 @@ logging.basicConfig(
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 )
 logger = logging.getLogger(__name__)
+
+# Task periódica para processar fila
+async def periodic_queue_processing():
+    """Processa fila de compressão a cada 5 minutos"""
+    while True:
+        try:
+            await asyncio.sleep(300)  # 5 minutos
+            logger.info("🔄 Processando fila de compressão...")
+            stats = await asyncio.to_thread(process_compression_queue, 100)
+            logger.info(f"✅ Fila processada: {stats}")
+        except Exception as e:
+            logger.error(f"❌ Erro no processamento periódico: {e}")
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -36,7 +50,18 @@ async def lifespan(app: FastAPI):
         logger.error(f"❌ Erro ao conectar PostgreSQL: {e}")
         raise
     
+    # Iniciar tarefa periódica de processamento da fila
+    task = asyncio.create_task(periodic_queue_processing())
+    logger.info("🔄 Job periódico de processamento iniciado")
+    
     yield
+    
+    # Cancelar tarefa ao encerrar
+    task.cancel()
+    try:
+        await task
+    except asyncio.CancelledError:
+        pass
     
     logger.info("🛑 Encerrando Backend Aguada")
 
@@ -75,6 +100,9 @@ app.include_router(calibracao.router, prefix="/api/calibracao", tags=["Calibraç
 
 # Rotas de dashboard
 app.include_router(dashboard.router, tags=["Dashboard"])
+
+# Rotas de administração
+app.include_router(admin.router, prefix="/api", tags=["Admin"])
 
 @app.get("/")
 async def root():

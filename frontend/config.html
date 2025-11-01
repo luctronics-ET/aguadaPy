@@ -1056,10 +1056,12 @@
                 const response = await fetch(`${API_URL}/elementos/${id}`);
                 const elem = await response.json();
                 
+                console.log('Dados carregados:', elem); // Debug
+                
                 document.getElementById('modalTitle').textContent = '✏️ Editar Elemento';
                 document.getElementById('elemento_id').value = elem.id;
-                document.getElementById('elemento_nome').value = elem.nome;
-                document.getElementById('elemento_tipo').value = elem.tipo;
+                document.getElementById('elemento_nome').value = elem.nome || '';
+                document.getElementById('elemento_tipo').value = elem.tipo || '';
                 document.getElementById('elemento_descricao').value = elem.descricao || '';
                 document.getElementById('elemento_capacidade').value = elem.capacidade_litros || '';
                 document.getElementById('elemento_coord_x').value = elem.coord_x || '';
@@ -1067,19 +1069,26 @@
                 document.getElementById('elemento_coord_z').value = elem.coord_z || '';
                 document.getElementById('elemento_latitude').value = elem.latitude || '';
                 document.getElementById('elemento_longitude').value = elem.longitude || '';
-                document.getElementById('elemento_ativo').checked = elem.ativo;
+                document.getElementById('elemento_ativo').checked = elem.ativo !== false;
                 
+                // Carregar metadados
                 if (elem.meta) {
                     document.getElementById('elemento_fabricante').value = elem.meta.fabricante || '';
                     document.getElementById('elemento_modelo').value = elem.meta.modelo || '';
                     document.getElementById('elemento_instalacao').value = elem.meta.data_instalacao || '';
+                } else {
+                    // Se meta não existe, tentar pegar direto dos campos
+                    document.getElementById('elemento_fabricante').value = elem.fabricante || '';
+                    document.getElementById('elemento_modelo').value = elem.modelo || '';
+                    document.getElementById('elemento_instalacao').value = elem.instalado_em || '';
                 }
                 
-                formHasChanges = false; // Resetar flag ao abrir
-                setupFormChangeDetection(); // Configurar detecção de alterações
+                formHasChanges = false;
+                setupFormChangeDetection();
                 document.getElementById('elementoModal').style.display = 'block';
             } catch (error) {
                 console.error('Erro ao carregar elemento:', error);
+                alert('Erro ao carregar dados do elemento. Verifique o console.');
             }
         }
 
@@ -1115,33 +1124,42 @@
                         <div class="stat-icon" style="background: #dbeafe; color: #1e40af;">🏺</div>
                         <div class="stat-info">
                             <h4>Reservatórios</h4>
-                            <p>${stats.reservatorios || 0}</p>
+                            <p>${stats.reservatorio || 0}</p>
                         </div>
                     </div>
                     <div class="stat-card">
                         <div class="stat-icon" style="background: #d1fae5; color: #065f46;">⚙️</div>
                         <div class="stat-info">
                             <h4>Bombas</h4>
-                            <p>${stats.bombas || 0}</p>
+                            <p>${stats.bomba || 0}</p>
                         </div>
                     </div>
                     <div class="stat-card">
                         <div class="stat-icon" style="background: #fef3c7; color: #92400e;">🔘</div>
                         <div class="stat-info">
                             <h4>Válvulas</h4>
-                            <p>${stats.valvulas || 0}</p>
+                            <p>${stats.valvula || 0}</p>
                         </div>
                     </div>
                     <div class="stat-card">
                         <div class="stat-icon" style="background: #e0e7ff; color: #5b21b6;">📡</div>
                         <div class="stat-info">
-                            <h4>Sensores</h4>
-                            <p>${stats.sensores || 0}</p>
+                            <h4>Sensores Ativos</h4>
+                            <p>${stats.ativos || 0}</p>
                         </div>
                     </div>
                 `;
             } catch (error) {
                 console.error('Erro ao carregar stats:', error);
+                document.getElementById('statsContainer').innerHTML = `
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background: #fee2e2; color: #991b1b;">⚠️</div>
+                        <div class="stat-info">
+                            <h4>Erro</h4>
+                            <p>Falha ao carregar</p>
+                        </div>
+                    </div>
+                `;
             }
         }
 

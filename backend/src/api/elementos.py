@@ -26,6 +26,64 @@ class ElementoResponse(BaseModel):
 
 # ==================== ENDPOINTS ====================
 
+@router.get("/stats")
+async def estatisticas_elementos():
+    """Estatísticas dos elementos"""
+    try:
+        with get_cursor() as cursor:
+            cursor.execute("""
+                SELECT 
+                    tipo,
+                    COUNT(*) as total,
+                    COUNT(*) FILTER (WHERE ativo = true) as ativos
+                FROM supervisorio.elemento
+                GROUP BY tipo
+            """)
+            
+            stats_raw = cursor.fetchall()
+            
+            # Formatar resultado
+            stats = {
+                'total': 0,
+                'ativos': 0
+            }
+            
+            for row in stats_raw:
+                tipo = row['tipo']
+                stats[tipo] = row['total']
+                stats['total'] += row['total']
+                stats['ativos'] += row['ativos']
+        
+        return stats
+        
+    except Exception as e:
+        logger.error(f"Erro ao obter estatísticas: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@router.get("/coordenadas")
+async def get_elementos_coordenadas():
+    """Retorna uma lista de elementos com suas coordenadas para o mapa."""
+    try:
+        with get_cursor() as cursor:
+            cursor.execute("""
+                SELECT 
+                    e.id,
+                    e.nome,
+                    e.tipo,
+                    e.status_operacional as status,
+                    c.latitude,
+                    c.longitude
+                FROM supervisorio.elemento e
+                JOIN supervisorio.coordenada c ON e.id = c.elemento_id
+                WHERE c.latitude IS NOT NULL AND c.longitude IS NOT NULL
+                ORDER BY e.tipo, e.nome;
+            """)
+            coordenadas = cursor.fetchall()
+        return coordenadas
+    except Exception as e:
+        logger.error(f"Erro ao buscar coordenadas dos elementos: {e}")
+        raise HTTPException(status_code=500, detail="Erro ao buscar coordenadas.")
+
 @router.get("/")
 async def listar_elementos(tipo: Optional[str] = None):
     """Lista todos os elementos do sistema"""
@@ -254,12 +312,13 @@ async def criar_elemento(elemento: ElementoCreate):
             
             # Buscar próximo número disponível
             cursor.execute("""
-                SELECT COUNT(*) + 1 
+                SELECT COUNT(*) + 1 as next_num
                 FROM supervisorio.elemento 
                 WHERE tipo = %s
             """, (elemento.tipo,))
             
-            next_num = cursor.fetchone()[0]
+            result = cursor.fetchone()
+            next_num = result['next_num']
             elemento_id = f"{prefix}{next_num:03d}"
             
             # Inserir elemento
@@ -283,7 +342,8 @@ async def criar_elemento(elemento: ElementoCreate):
                 elemento.meta.get('data_instalacao') if elemento.meta else None
             ))
             
-            new_id = cursor.fetchone()[0]
+            result = cursor.fetchone()
+            new_id = result['id']
             
             # Inserir coordenadas se fornecidas
             if any([elemento.coord_x, elemento.coord_y, elemento.coord_z, 

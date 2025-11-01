@@ -854,7 +854,60 @@
             }
         });
 
-        // Adicionar atividade ao log
+        // Buscar e exibir atividades recentes da API
+        async function updateActivityLog() {
+            try {
+                const response = await fetch(`${API_URL}/api/atividades/recentes?limit=15`);
+                const data = await response.json();
+                
+                const container = document.getElementById('activityLog');
+                
+                if (data.atividades && data.atividades.length > 0) {
+                    container.innerHTML = data.atividades.map(item => {
+                        const datetime = new Date(item.datetime);
+                        const timeStr = datetime.toLocaleTimeString('pt-BR', { 
+                            hour: '2-digit', 
+                            minute: '2-digit' 
+                        });
+                        const dateStr = datetime.toLocaleDateString('pt-BR', {
+                            day: '2-digit',
+                            month: '2-digit'
+                        });
+                        
+                        // Formatar texto da atividade
+                        let activityText = `${item.elemento}: ${item.valor}${item.unidade}`;
+                        if (item.percentual && item.variavel === 'nivel') {
+                            activityText += ` (${item.percentual.toFixed(1)}%)`;
+                        }
+                        if (item.n_amostras > 1) {
+                            activityText += ` <span style="opacity: 0.6; font-size: 0.85em;">[${item.n_amostras} amostras]</span>`;
+                        }
+                        
+                        return `
+                            <div class="activity-item">
+                                <div class="activity-time">${timeStr} <span style="opacity: 0.5; font-size: 0.85em;">${dateStr}</span></div>
+                                <div class="activity-text">${activityText}</div>
+                            </div>
+                        `;
+                    }).join('');
+                } else {
+                    container.innerHTML = `
+                        <div class="activity-item" style="text-align: center; opacity: 0.6;">
+                            <div class="activity-text">Nenhuma atividade recente</div>
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                console.error('Erro ao buscar atividades:', error);
+                document.getElementById('activityLog').innerHTML = `
+                    <div class="activity-item" style="text-align: center; color: #dc3545;">
+                        <div class="activity-text">Erro ao carregar atividades</div>
+                    </div>
+                `;
+            }
+        }
+        
+        // Função legada para compatibilidade (não mais usada)
         function addActivity(text) {
             const now = new Date();
             activityLog.unshift({
@@ -951,7 +1004,7 @@
                 
                 for (let i = 0; i < sensorsToFetch.length; i++) {
                     const sensorId = sensorsToFetch[i];
-                    const response = await fetch(`${API_URL}/api/leituras/sensor/${sensorId}/historico?horas=24`);
+                    const response = await fetch(`${API_URL}/api/sensores/historico/${sensorId}?limit=100`);
                     
                     if (response.ok) {
                         const data = await response.json();
@@ -1242,9 +1295,11 @@
             createVolumeChart();
             checkHealth();
             fetchSensors();
+            updateActivityLog();  // Carregar atividades recentes
             
             setInterval(checkHealth, 30000);
             setInterval(fetchSensors, 30000);
+            setInterval(updateActivityLog, 60000);  // Atualizar atividades a cada 1 minuto
         });
     </script>
 </body>

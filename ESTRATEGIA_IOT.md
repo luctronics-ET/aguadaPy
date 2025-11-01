@@ -395,8 +395,8 @@ Com painel 1W (200mA @ 5h sol/dia): autonomia infinita
 ### 3.1 Comparativo
 
 | Protocolo | Range | Taxa | Consumo | Latência | Custo | Uso no Projeto |
-|-----------|-------|------|---------|----------|-------|----------------|
-| **WiFi** | 50-100m | 54Mbps | 80mA | 10-50ms | R$ 0 | Principal |
+|-----------|-------|------|---------|----------  |------- |--------|--------|
+| **WiFi** | 50-100m | 54Mbps | 80mA | 10-50ms     | R$ 0 | Principal |
 | **ESP-NOW** | 200m | 1Mbps | 20mA | <10ms | R$ 0 | Fallback/Mesh |
 | **Ethernet** | 100m | 100Mbps | 50mA | <5ms | R$ 40 | Gateway |
 | **Bluetooth** | 10-30m | 2Mbps | 15mA | 20ms | R$ 0 | Config local |
